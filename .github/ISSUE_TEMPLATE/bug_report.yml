@@ -1,0 +1,36 @@
+name: Ошибка
+description: Что-то работает не так
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Не прикладывайте пароль приложения, адреса и названия встреч.** Замените их на вымышленные.
+  - type: textarea
+    id: what
+    attributes:
+      label: Что произошло
+      description: Что делали, что ожидали увидеть и что получилось. Скриншот поможет.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Версия расширения
+      description: Внизу страницы настроек
+      placeholder: 1.1.0
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Chrome и ОС
+      placeholder: Chrome 141, macOS 26
+  - type: dropdown
+    id: account
+    attributes:
+      label: Аккаунт
+      options:
+        - Яндекс 360 для бизнеса
+        - Личный аккаунт Яндекса
+        - Не знаю

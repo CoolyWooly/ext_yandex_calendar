@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Уязвимость
+    url: https://github.com/CoolyWooly/ext_yandex_calendar/security/advisories/new
+    about: Сообщите приватно, не в открытом issue

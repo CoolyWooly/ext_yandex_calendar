@@ -3,6 +3,15 @@
   "description": "Встречи из Яндекс Календаря, напоминания и вход в созвон",
   "private": true,
   "version": "1.1.0",
+  "license": "MIT",
+  "homepage": "https://github.com/CoolyWooly/ext_yandex_calendar#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CoolyWooly/ext_yandex_calendar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CoolyWooly/ext_yandex_calendar/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "wxt",
