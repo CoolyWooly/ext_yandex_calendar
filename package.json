@@ -1,0 +1,25 @@
+{
+  "name": "yandex-calendar-meetings",
+  "description": "Встречи из Яндекс Календаря и уведомления о них",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.11.2",
+    "ical.js": "^2.2.1",
+    "preact": "^10.29.8"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3",
+    "wxt": "^0.21.4"
+  }
+}

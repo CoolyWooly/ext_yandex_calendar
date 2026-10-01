@@ -1,0 +1,229 @@
+body {
+  width: 380px;
+}
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 10px 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.popup-header h1 {
+  flex: 1;
+  margin: 0;
+  font-size: 15px;
+}
+
+.sync-status {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.icon-button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.icon-button:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.icon-button.spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.banner {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.banner.warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.banner.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.banner .button.link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 6px;
+}
+
+.section-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 10px 14px 6px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.section-title.now {
+  color: var(--danger);
+}
+
+.meeting {
+  display: flex;
+  gap: 10px;
+  margin: 0 8px 6px;
+  padding: 9px 10px 9px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.meeting:hover {
+  border-color: var(--muted);
+}
+
+.meeting-bar {
+  flex: none;
+  width: 4px;
+  margin-left: -1px;
+  border-radius: 0 3px 3px 0;
+}
+
+.meeting-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.meeting-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meeting-time {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.meeting.soon .meeting-time {
+  color: var(--warning);
+}
+
+.meeting-title {
+  margin-top: 1px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.meeting-meta {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.meeting .button.small {
+  height: 28px;
+  margin-top: 8px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.meeting.cancelled .meeting-title,
+.meeting.cancelled .meeting-time {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.meeting.highlighted {
+  border-color: var(--accent);
+}
+
+.meeting.declined {
+  opacity: 0.6;
+}
+
+.chip {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.chip.accent {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.chip.warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.chip.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.chip.muted {
+  background: var(--border);
+  color: var(--muted);
+}
+
+.empty {
+  padding: 28px 16px;
+  text-align: center;
+}
+
+.empty p {
+  margin: 0 0 8px;
+}
+
+.empty .button {
+  margin-top: 8px;
+}
+
+.popup-footer {
+  padding: 9px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.popup-footer a {
+  text-decoration: none;
+}
+
+.popup-footer a:hover {
+  text-decoration: underline;
+}
