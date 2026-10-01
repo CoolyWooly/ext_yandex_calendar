@@ -37,7 +37,7 @@ describe('computeBadge', () => {
   });
 
   it('counts down the last hour before a meeting, turning orange in the last 10 minutes', () => {
-    expect(badge([at(45)])).toMatchObject({ text: '45м', color: '#3358d4' });
+    expect(badge([at(45)])).toMatchObject({ text: '45м', color: '#4b5bf6' });
     expect(badge([at(8)])).toMatchObject({ text: '8м', color: '#e8590c' });
     expect(badge([at(0.5)])).toMatchObject({ text: '1м' });
   });

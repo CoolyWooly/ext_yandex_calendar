@@ -2,7 +2,8 @@ import { useEffect, useState } from 'preact/hooks';
 import { browser } from 'wxt/browser';
 import { buildHighlights, type Highlights } from '../../calendar/highlights';
 import { CALENDAR_URL } from '../../calendar/links';
-import { buildSchedule } from '../../calendar/schedule';
+import { buildSchedule, isOnMyAgenda } from '../../calendar/schedule';
+import type { Meeting } from '../../calendar/types';
 import {
   type Account,
   accountItem,
@@ -16,7 +17,18 @@ import {
 } from '../../storage/store';
 import type { BackgroundMessage } from '../../sync/messages';
 import { formatAgo, plural } from '../../ui/format';
-import { RefreshIcon, SettingsIcon } from '../../ui/icons';
+import {
+  AlertIcon,
+  BellIcon,
+  CalendarIcon,
+  ExternalIcon,
+  FreeTimeIllustration,
+  InviteIcon,
+  LogoMark,
+  RefreshIcon,
+  SettingsIcon,
+  VideoIcon,
+} from '../../ui/icons';
 import { MeetingItem } from './MeetingItem';
 
 const HORIZON_TEXT: Record<number, string> = {
@@ -87,8 +99,11 @@ export function Popup() {
   return (
     <div class="popup">
       <header class="popup-header">
-        <h1>Мои встречи</h1>
-        {account && <span class="sync-status">{status}</span>}
+        <LogoMark size={30} />
+        <div class="popup-heading">
+          <h1>Мои встречи</h1>
+          {account && status && <span class="sync-status">{status}</span>}
+        </div>
         {account && (
           <button
             class={`icon-button${syncing ? ' spinning' : ''}`}
@@ -116,12 +131,7 @@ export function Popup() {
           onOpenOptions={openOptions}
         />
       ) : (
-        <div class="empty">
-          <p>Календарь не подключён</p>
-          <button class="button primary" onClick={openOptions}>
-            Подключить
-          </button>
-        </div>
+        <Welcome onConnect={openOptions} />
       )}
 
       <footer class="popup-footer">
@@ -132,7 +142,9 @@ export function Popup() {
             open(CALENDAR_URL);
           }}
         >
-          Открыть Яндекс Календарь ↗
+          <CalendarIcon size={15} />
+          Открыть Яндекс Календарь
+          <ExternalIcon />
         </a>
       </footer>
     </div>
@@ -154,7 +166,26 @@ function Content(props: {
   });
   const colors = new Map(account.calendars.map((calendar) => [calendar.href, calendar.color ?? 'var(--accent)']));
   const colorOf = (href: string) => colors.get(href) ?? 'var(--accent)';
-  const isEmpty = schedule.now.length === 0 && schedule.days.length === 0;
+  // Текущая или ближайшая встреча — крупной карточкой наверху, в своём разделе её уже нет.
+  const focus = [...schedule.now, ...schedule.days.flatMap((day) => day.meetings)].find(
+    (meeting) => !meeting.allDay && isOnMyAgenda(meeting),
+  );
+  const happeningNow = schedule.now.filter((meeting) => meeting !== focus);
+  const days = schedule.days
+    .map((day) => ({ ...day, meetings: day.meetings.filter((meeting) => meeting !== focus) }))
+    .filter((day) => day.meetings.length > 0);
+  const isEmpty = !focus && happeningNow.length === 0 && days.length === 0;
+  const item = (meeting: Meeting, featured = false) => (
+    <MeetingItem
+      key={meeting.key}
+      meeting={meeting}
+      highlight={highlights.byKey.get(meeting.key)}
+      color={colorOf(meeting.calendarHref)}
+      featured={featured}
+      now={now}
+      onOpen={onOpen}
+    />
+  );
 
   return (
     <>
@@ -162,8 +193,11 @@ function Content(props: {
 
       {schedule.needsResponse > 0 && (
         <div class="banner warning">
-          {schedule.needsResponse}{' '}
-          {plural(schedule.needsResponse, ['приглашение ждёт', 'приглашения ждут', 'приглашений ждут'])} ответа
+          <InviteIcon />
+          <span>
+            {schedule.needsResponse}{' '}
+            {plural(schedule.needsResponse, ['приглашение ждёт', 'приглашения ждут', 'приглашений ждут'])} ответа
+          </span>
         </div>
       )}
 
@@ -176,45 +210,30 @@ function Content(props: {
             </button>
           </div>
         ) : isEmpty ? (
-          <div class="empty">
-            <p class="muted">
-              {snapshot.syncedAt
-                ? `Встреч ${HORIZON_TEXT[prefs.horizonDays] ?? 'в ближайшие дни'} нет`
-                : snapshot.error
-                  ? 'Встречи пока не загружены'
-                  : 'Загружаю встречи…'}
-            </p>
-          </div>
+          snapshot.syncedAt ? (
+            <div class="empty">
+              <FreeTimeIllustration />
+              <p class="empty-title">Свободное время</p>
+              <p class="muted">Встреч {HORIZON_TEXT[prefs.horizonDays] ?? 'в ближайшие дни'} нет</p>
+            </div>
+          ) : (
+            <div class="empty">
+              <p class="muted">{snapshot.error ? 'Встречи пока не загружены' : 'Загружаю встречи…'}</p>
+            </div>
+          )
         ) : (
           <>
-            {schedule.now.length > 0 && (
+            {focus && <div class="focus">{item(focus, true)}</div>}
+            {happeningNow.length > 0 && (
               <section>
-                <h2 class="section-title now">Сейчас</h2>
-                {schedule.now.map((meeting) => (
-                  <MeetingItem
-                    key={meeting.key}
-                    meeting={meeting}
-                    highlight={highlights.byKey.get(meeting.key)}
-                    color={colorOf(meeting.calendarHref)}
-                    now={now}
-                    onOpen={onOpen}
-                  />
-                ))}
+                <SectionTitle label="Сейчас" count={happeningNow.length} live />
+                {happeningNow.map((meeting) => item(meeting))}
               </section>
             )}
-            {schedule.days.map((day) => (
+            {days.map((day) => (
               <section key={day.key}>
-                <h2 class="section-title">{day.label}</h2>
-                {day.meetings.map((meeting) => (
-                  <MeetingItem
-                    key={meeting.key}
-                    meeting={meeting}
-                    highlight={highlights.byKey.get(meeting.key)}
-                    color={colorOf(meeting.calendarHref)}
-                    now={now}
-                    onOpen={onOpen}
-                  />
-                ))}
+                <SectionTitle label={day.label} count={day.meetings.length} />
+                {day.meetings.map((meeting) => item(meeting))}
               </section>
             ))}
           </>
@@ -228,18 +247,67 @@ function ErrorBanner({ snapshot, now, onOpenOptions }: { snapshot: Snapshot; now
   if (snapshot.error?.kind === 'auth') {
     return (
       <div class="banner danger">
-        Яндекс не принимает пароль приложения.{' '}
-        <button class="button link" onClick={onOpenOptions}>
-          Обновить пароль
-        </button>
+        <AlertIcon />
+        <span>
+          Яндекс не принимает пароль приложения.{' '}
+          <button class="button link" onClick={onOpenOptions}>
+            Обновить пароль
+          </button>
+        </span>
       </div>
     );
   }
   return (
     <div class="banner danger">
-      {snapshot.syncedAt
-        ? `Нет связи с календарём — показаны данные, полученные ${formatAgo(snapshot.syncedAt, now)}`
-        : 'Не удалось загрузить встречи — нет связи с календарём'}
+      <AlertIcon />
+      <span>
+        {snapshot.syncedAt
+          ? `Нет связи с календарём — показаны данные, полученные ${formatAgo(snapshot.syncedAt, now)}`
+          : 'Не удалось загрузить встречи — нет связи с календарём'}
+      </span>
+    </div>
+  );
+}
+
+/** «Сегодня · четверг, 1 октября» → крупно «Сегодня», мельче дата, справа число встреч. */
+function SectionTitle({ label, count, live = false }: { label: string; count: number; live?: boolean }) {
+  const [head, date] = label.split(' · ');
+  return (
+    <h2 class={`section-title${live ? ' now' : ''}`}>
+      {live && <span class="live-dot" aria-hidden="true" />}
+      <span class="section-head">{head}</span>
+      {date && <span class="section-date">{date}</span>}
+      <span class="section-count">
+        {count} {plural(count, ['встреча', 'встречи', 'встреч'])}
+      </span>
+    </h2>
+  );
+}
+
+const WELCOME_FEATURES = [
+  { icon: <CalendarIcon />, text: 'Встречи на сегодня и неделю' },
+  { icon: <BellIcon />, text: 'Напоминания и уведомления о переносах' },
+  { icon: <VideoIcon />, text: 'Вход в созвон одной кнопкой' },
+];
+
+function Welcome({ onConnect }: { onConnect: () => void }) {
+  return (
+    <div class="welcome">
+      <LogoMark size={56} />
+      <h2>Не пропускайте встречи</h2>
+      <p class="muted">Ближайшие встречи из Яндекс Календаря — прямо в браузере</p>
+      <ul class="welcome-features">
+        {WELCOME_FEATURES.map((feature) => (
+          <li key={feature.text}>
+            <span class="feature-icon">{feature.icon}</span>
+            {feature.text}
+          </li>
+        ))}
+      </ul>
+      <button class="button primary wide" onClick={onConnect}>
+        Подключить календарь
+      </button>
+      <p class="welcome-note muted">Понадобится только пароль приложения Яндекса</p>
     </div>
   );
 }

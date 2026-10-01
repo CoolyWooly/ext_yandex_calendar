@@ -1,5 +1,6 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import { browser } from 'wxt/browser';
 import type { CalendarInfo } from '../../caldav/client';
 import {
   type Account,
@@ -14,6 +15,7 @@ import {
   type Preferences,
   updatePreferences,
 } from '../../storage/store';
+import { BellIcon, CalendarIcon, LockIcon, LogoMark, SlidersIcon } from '../../ui/icons';
 import { describeTestNotification, showNotifications } from '../../ui/notifications';
 import { ConnectionSection } from './ConnectionSection';
 
@@ -29,6 +31,9 @@ const HORIZON_LABELS: Record<number, string> = {
   7: 'на неделю',
   14: 'на 2 недели',
 };
+
+const PROJECT_URL = 'https://github.com/CoolyWooly/ext_yandex_calendar';
+const PRIVACY_URL = `${PROJECT_URL}/blob/master/PRIVACY.md`;
 
 type SavePreferences = (patch: Partial<Preferences>) => Promise<void>;
 
@@ -76,32 +81,94 @@ export function Options() {
   }
 
   return (
-    <main class="page">
-      <header class="page-header">
-        <h1>Встречи из Яндекс Календаря</h1>
-        <p class="muted">
-          Настройки сохраняются автоматически. <SavedBadge savedAt={savedAt} />
-        </p>
+    <>
+      <header class="hero">
+        <div class="hero-inner">
+          <LogoMark size={56} />
+          <div class="hero-text">
+            <h1>Встречи для Яндекс Календаря</h1>
+            <p>Список встреч, напоминания и вход в созвон — в один клик</p>
+          </div>
+          <StatusPill connected={account !== null} authError={authErrorAt !== null} />
+        </div>
       </header>
 
-      <ConnectionSection
-        account={account}
-        authErrorAt={authErrorAt}
-        onConnected={handleConnected}
-        onDisconnect={handleDisconnect}
-      />
-
-      {account && (
-        <CalendarsSection
-          calendars={account.calendars}
-          selected={prefs.selectedCalendars ?? []}
-          onChange={(selectedCalendars) => savePrefs({ selectedCalendars })}
+      <main class="page">
+        <ConnectionSection
+          account={account}
+          authErrorAt={authErrorAt}
+          onConnected={handleConnected}
+          onDisconnect={handleDisconnect}
         />
-      )}
 
-      <NotificationsSection prefs={prefs} onChange={savePrefs} />
-      <DisplaySection prefs={prefs} onChange={savePrefs} />
-    </main>
+        {account && (
+          <CalendarsSection
+            calendars={account.calendars}
+            selected={prefs.selectedCalendars ?? []}
+            onChange={(selectedCalendars) => savePrefs({ selectedCalendars })}
+          />
+        )}
+
+        <NotificationsSection prefs={prefs} onChange={savePrefs} />
+        <DisplaySection prefs={prefs} onChange={savePrefs} />
+        <PrivacySection />
+
+        <footer class="page-footer">
+          <p>
+            Версия {browser.runtime.getManifest().version} · Настройки сохраняются автоматически ·{' '}
+            <a href={PRIVACY_URL} target="_blank" rel="noreferrer">
+              Конфиденциальность
+            </a>{' '}
+            ·{' '}
+            <a href={PROJECT_URL} target="_blank" rel="noreferrer">
+              Исходный код
+            </a>
+          </p>
+          <p>Неофициальное расширение, не связано с ООО «Яндекс».</p>
+        </footer>
+      </main>
+      <SavedToast savedAt={savedAt} />
+    </>
+  );
+}
+
+function StatusPill({ connected, authError }: { connected: boolean; authError: boolean }) {
+  const [tone, text] = !connected
+    ? ['muted', 'Не подключено']
+    : authError
+      ? ['danger', 'Нужен новый пароль']
+      : ['success', 'Подключено'];
+  return (
+    <span class={`status-pill ${tone}`}>
+      <span class="status-dot" aria-hidden="true" />
+      {text}
+    </span>
+  );
+}
+
+function CardTitle({ icon, children }: { icon: ComponentChildren; children: ComponentChildren }) {
+  return (
+    <h2 class="card-title">
+      <span class="card-icon">{icon}</span>
+      {children}
+    </h2>
+  );
+}
+
+function PrivacySection() {
+  return (
+    <section class="card privacy">
+      <span class="card-icon large">
+        <LockIcon size={20} />
+      </span>
+      <div>
+        <h2>Данные остаются у вас</h2>
+        <p class="muted">
+          Расширение обращается только к caldav.yandex.ru. Встречи и пароль приложения хранятся в этом браузере
+          и никуда больше не отправляются: своих серверов, аналитики и рекламы нет.
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -119,7 +186,7 @@ function CalendarsSection(props: {
 
   return (
     <section class="card">
-      <h2>Календари</h2>
+      <CardTitle icon={<CalendarIcon />}>Календари</CardTitle>
       <p class="muted">
         Встречи из отмеченных календарей попадут в список и уведомления. Календари переговорок лучше не
         отмечать — иначе будут приходить уведомления о каждой брони.
@@ -131,14 +198,16 @@ function CalendarsSection(props: {
         <ul class="option-list">
           {eventCalendars.map((calendar) => (
             <li key={calendar.href}>
-              <label class="check">
+              <label class="toggle">
+                <span class="dot" style={{ background: calendar.color ?? 'var(--accent)' }} />
+                <span class="toggle-text">{calendar.name}</span>
                 <input
                   type="checkbox"
+                  role="switch"
+                  class="switch"
                   checked={selected.includes(calendar.href)}
                   onChange={(event) => toggle(calendar.href, event.currentTarget.checked)}
                 />
-                <span class="dot" style={{ background: calendar.color ?? 'var(--accent)' }} />
-                <span>{calendar.name}</span>
               </label>
             </li>
           ))}
@@ -163,7 +232,7 @@ function NotificationsSection({ prefs, onChange }: { prefs: Preferences; onChang
 
   return (
     <section class="card">
-      <h2>Уведомления</h2>
+      <CardTitle icon={<BellIcon />}>Уведомления</CardTitle>
       <ul class="option-list">
         <Toggle
           checked={prefs.notify.newMeetings}
@@ -212,6 +281,7 @@ function TestNotification() {
   return (
     <div class="test-notification">
       <button class="button" onClick={() => void show()}>
+        <BellIcon />
         Показать тестовое уведомление
       </button>
       {shown && (
@@ -228,7 +298,7 @@ function TestNotification() {
 function DisplaySection({ prefs, onChange }: { prefs: Preferences; onChange: SavePreferences }) {
   return (
     <section class="card">
-      <h2>Показ и проверка</h2>
+      <CardTitle icon={<SlidersIcon />}>Показ и проверка</CardTitle>
       <div class="rows">
         <label class="row">
           <span>Проверять календарь</span>
@@ -277,16 +347,18 @@ function Toggle(props: {
 }) {
   return (
     <li>
-      <label class="check">
+      <label class="toggle">
+        <span class="toggle-text">
+          <span class="toggle-title">{props.title}</span>
+          {props.hint && <span class="toggle-hint">{props.hint}</span>}
+        </span>
         <input
           type="checkbox"
+          role="switch"
+          class="switch"
           checked={props.checked}
           onChange={(event) => props.onChange(event.currentTarget.checked)}
         />
-        <span>
-          <span class="check-title">{props.title}</span>
-          {props.hint && <span class="check-hint">{props.hint}</span>}
-        </span>
       </label>
       {props.children}
     </li>
@@ -330,7 +402,7 @@ function ReminderMinutesInput(props: {
   );
 }
 
-function SavedBadge({ savedAt }: { savedAt: number }) {
+function SavedToast({ savedAt }: { savedAt: number }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -341,8 +413,8 @@ function SavedBadge({ savedAt }: { savedAt: number }) {
   }, [savedAt]);
 
   return (
-    <span class={`saved-badge${visible ? ' visible' : ''}`} aria-live="polite">
+    <div class={`saved-toast${visible ? ' visible' : ''}`} aria-live="polite">
       {visible ? '✓ Сохранено' : ''}
-    </span>
+    </div>
   );
 }

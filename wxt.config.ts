@@ -5,8 +5,13 @@ export default defineConfig({
   srcDir: 'src',
   imports: false,
   manifest: {
-    name: 'Встречи · Яндекс Календарь',
-    description: 'Показывает встречи из Яндекс Календаря и напоминает о них',
+    // Название и описание — те же, что в карточке Chrome Web Store (store/listing.md).
+    name: 'Встречи для Яндекс Календаря',
+    short_name: 'Встречи',
+    description:
+      'Ближайшие встречи из Яндекс Календаря в один клик: вход в созвон, напоминания и уведомления о переносах и приглашениях.',
+    homepage_url: 'https://github.com/CoolyWooly/ext_yandex_calendar',
+    action: { default_title: 'Мои встречи' },
     permissions: ['storage', 'alarms', 'notifications'],
     host_permissions: ['https://caldav.yandex.ru/*'],
   },

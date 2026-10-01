@@ -15,7 +15,7 @@ const COUNTDOWN_FROM = 60 * MINUTE;
 const IMMINENT = 10 * MINUTE;
 const JUST_STARTED = 5 * MINUTE;
 
-const COLOR_SOON = '#3358d4';
+const COLOR_SOON = '#4b5bf6';
 const COLOR_IMMINENT = '#e8590c';
 const COLOR_ALERT = '#d9342b';
 

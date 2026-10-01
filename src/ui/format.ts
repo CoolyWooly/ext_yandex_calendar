@@ -22,6 +22,23 @@ export function formatTimeRange(meeting: Meeting): string {
   return `${formatTime(meeting.start)}–${formatTime(meeting.end)}`;
 }
 
+export interface TimeColumn {
+  /** «08:30» или «весь день». */
+  start: string;
+  /** «09:00»; у событий на весь день нет. */
+  end: string | null;
+  /** Многодневное событие: «до 3 окт.». */
+  until: string | null;
+}
+
+/** Время для колонки слева в списке встреч. */
+export function describeTimeColumn(meeting: Meeting): TimeColumn {
+  const lastMoment = meeting.end - 1;
+  const until = sameDay(meeting.start, lastMoment) ? null : `до ${shortDayFormat.format(lastMoment)}`;
+  if (meeting.allDay) return { start: 'весь день', end: null, until };
+  return { start: formatTime(meeting.start), end: formatTime(meeting.end), until };
+}
+
 /** «12 мин», «1 ч», «1 ч 20 мин». */
 export function formatDuration(ms: number): string {
   const totalMinutes = Math.max(1, Math.ceil(ms / MINUTE));
@@ -40,6 +57,15 @@ export function formatWhen(start: number, now: number): string {
   tomorrow.setDate(tomorrow.getDate() + 1);
   if (sameDay(start, tomorrow.getTime())) return `завтра в ${formatTime(start)}`;
   return `${weekdayFormat.format(start)}, ${shortDayFormat.format(start)} в ${formatTime(start)}`;
+}
+
+/** День относительно `now`: «Сегодня», «Завтра», «Пт, 9 окт.». */
+export function formatDay(timestamp: number, now: number): string {
+  if (sameDay(timestamp, now)) return 'Сегодня';
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (sameDay(timestamp, tomorrow.getTime())) return 'Завтра';
+  return capitalize(`${weekdayFormat.format(timestamp)}, ${shortDayFormat.format(timestamp)}`);
 }
 
 /** Прежнее время перенесённой встречи: «08:30», если день тот же, иначе «пн, 5 окт., 08:30». */
@@ -63,6 +89,10 @@ export function plural(count: number, forms: [one: string, few: string, many: st
   if (mod10 === 1 && mod100 !== 11) return forms[0];
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
   return forms[2];
+}
+
+export function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function sameDay(a: number, b: number): boolean {

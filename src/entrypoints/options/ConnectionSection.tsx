@@ -7,6 +7,7 @@ import {
   normalizeLogin,
 } from '../../caldav/client';
 import type { Account } from '../../storage/store';
+import { ExternalIcon, LinkIcon } from '../../ui/icons';
 
 const APP_PASSWORDS_URL = 'https://id.yandex.ru/security/app-passwords';
 
@@ -68,10 +69,20 @@ export function ConnectionSection({ account, authErrorAt, onConnected, onDisconn
   }
 
   const checking = check.status === 'checking';
+  const errorAlert = check.status === 'error' && (
+    <p class="alert error" role="alert">
+      {check.message}
+    </p>
+  );
 
   return (
     <section class="card">
-      <h2>Подключение</h2>
+      <h2 class="card-title">
+        <span class="card-icon">
+          <LinkIcon />
+        </span>
+        Подключение
+      </h2>
 
       {account && authErrorAt !== null && check.status !== 'checking' && (
         <p class="alert error" role="alert">
@@ -82,13 +93,18 @@ export function ConnectionSection({ account, authErrorAt, onConnected, onDisconn
 
       {account && !editing ? (
         <div class="connected">
-          <p class="connected-title">
-            <span class="ok-mark" aria-hidden="true">✓</span> Подключено: <b>{account.login}</b>
-          </p>
-          <p class="muted">
-            Проверено {formatDateTime(account.verifiedAt)} · календарей со встречами:{' '}
-            {account.calendars.filter((calendar) => calendar.kind === 'events').length}
-          </p>
+          <div class="account">
+            <span class="avatar" aria-hidden="true">
+              {account.login.charAt(0).toUpperCase()}
+            </span>
+            <div class="account-info">
+              <div class="account-login">{account.login}</div>
+              <div class="muted small">
+                Проверено {formatDateTime(account.verifiedAt)} · календарей со встречами:{' '}
+                {account.calendars.filter((calendar) => calendar.kind === 'events').length}
+              </div>
+            </div>
+          </div>
           <div class="actions">
             <button class="button" disabled={checking} onClick={() => void connect(account)}>
               {checking ? 'Проверяю…' : 'Проверить снова'}
@@ -100,62 +116,81 @@ export function ConnectionSection({ account, authErrorAt, onConnected, onDisconn
               Отключить
             </button>
           </div>
+          {errorAlert}
         </div>
       ) : (
-        <form class="connect-form" onSubmit={submit}>
-          <label class="field">
-            <span class="field-label">Рабочая почта</span>
-            <input
-              type="email"
-              autoComplete="username"
-              placeholder="name@company.ru"
-              value={login}
-              onInput={(event) => setLogin(event.currentTarget.value)}
-              required
-            />
-          </label>
-          <label class="field">
-            <span class="field-label">Пароль приложения</span>
-            <input
-              type="password"
-              autoComplete="off"
-              value={password}
-              onInput={(event) => setPassword(event.currentTarget.value)}
-              required
-            />
-            <span class="field-hint">
-              Создаётся в Яндекс ID → «Пароли приложений» → «Календарь». Даёт доступ только к календарю, его
-              можно отозвать в любой момент.{' '}
-              <a href={APP_PASSWORDS_URL} target="_blank" rel="noreferrer">
-                Открыть Яндекс ID ↗
+        <ol class="steps">
+          <li class="step">
+            <span class="step-number">1</span>
+            <div class="step-body">
+              <div class="step-title">Создайте пароль приложения</div>
+              <p class="field-hint">
+                Яндекс ID → «Безопасность» → «Пароли приложений» → «Календарь». Пароль даёт доступ только к
+                календарю, его можно отозвать в любой момент.
+              </p>
+              <a class="button" href={APP_PASSWORDS_URL} target="_blank" rel="noreferrer">
+                Открыть Яндекс ID
+                <ExternalIcon />
               </a>
-            </span>
-          </label>
-          <div class="actions">
-            <button class="button primary" type="submit" disabled={checking || !login || !password}>
-              {checking ? 'Проверяю…' : 'Проверить подключение'}
-            </button>
-            {account && (
-              <button
-                class="button"
-                type="button"
-                disabled={checking}
-                onClick={() => {
-                  setEditing(false);
-                  setCheck({ status: 'idle' });
-                }}
-              >
-                Отмена
-              </button>
-            )}
-          </div>
-        </form>
-      )}
-
-      {check.status === 'error' && (
-        <p class="alert error" role="alert">
-          {check.message}
-        </p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-number">2</span>
+            <div class="step-body">
+              <div class="step-title">Введите рабочую почту и пароль</div>
+              <form class="connect-form" onSubmit={submit}>
+                <label class="field">
+                  <span class="field-label">Рабочая почта</span>
+                  <input
+                    type="email"
+                    autoComplete="username"
+                    placeholder="name@company.ru"
+                    value={login}
+                    onInput={(event) => setLogin(event.currentTarget.value)}
+                    required
+                  />
+                </label>
+                <label class="field">
+                  <span class="field-label">Пароль приложения</span>
+                  <input
+                    type="password"
+                    autoComplete="off"
+                    value={password}
+                    onInput={(event) => setPassword(event.currentTarget.value)}
+                    required
+                  />
+                  <span class="field-hint">Не основной пароль от почты, а созданный на шаге 1.</span>
+                </label>
+                <div class="actions">
+                  <button class="button primary" type="submit" disabled={checking || !login || !password}>
+                    {checking ? 'Проверяю…' : 'Проверить подключение'}
+                  </button>
+                  {account && (
+                    <button
+                      class="button"
+                      type="button"
+                      disabled={checking}
+                      onClick={() => {
+                        setEditing(false);
+                        setCheck({ status: 'idle' });
+                      }}
+                    >
+                      Отмена
+                    </button>
+                  )}
+                </div>
+              </form>
+              {errorAlert}
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-number">3</span>
+            <div class="step-body">
+              <div class="step-title">Отметьте календари</div>
+              <p class="field-hint">Список появится после проверки подключения.</p>
+            </div>
+          </li>
+        </ol>
       )}
     </section>
   );

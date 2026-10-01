@@ -4,7 +4,7 @@ import type { MeetingChange } from '../calendar/diff';
 import { CALENDAR_URL, calendarUrlFor } from '../calendar/links';
 import type { Meeting } from '../calendar/types';
 import type { NotifyPreferences, Snapshot } from '../storage/store';
-import { formatDuration, formatTime, formatTimeRange, formatWhen, plural } from './format';
+import { capitalize, formatDuration, formatTime, formatTimeRange, formatWhen, plural } from './format';
 
 export interface NotificationSpec {
   id: string;
@@ -205,10 +205,6 @@ function describeMore(count: number): string {
 
 function join(...parts: Array<string | null | undefined>): string {
   return parts.filter(Boolean).join(' · ');
-}
-
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // Куда вести по клику: service worker может перезапуститься между показом и кликом.

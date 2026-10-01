@@ -1,29 +1,117 @@
-.page {
-  max-width: 680px;
+.hero {
+  padding: 40px 16px 76px;
+  background: var(--brand-gradient);
+  color: #ffffff;
+}
+
+.hero-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 32px 16px 64px;
 }
 
-.page-header h1 {
+.hero .logo-mark {
+  flex: none;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.35),
+    0 8px 24px rgba(20, 12, 90, 0.35);
+}
+
+.hero-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero h1 {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-.page-header p {
-  margin: 0 0 24px;
+.hero p {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.status-pill {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  opacity: 0.6;
+}
+
+.status-pill.success .status-dot {
+  background: #6ee7b7;
+  opacity: 1;
+}
+
+.status-pill.danger .status-dot {
+  background: #fca5a5;
+  opacity: 1;
+}
+
+.page {
+  max-width: 752px;
+  margin: -48px auto 0;
+  padding: 0 16px 48px;
 }
 
 .card {
   margin-bottom: 16px;
-  padding: 20px;
+  padding: 22px 24px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: var(--shadow-md);
 }
 
 .card h2 {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px !important;
+}
+
+.card-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.card-icon.large {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
 }
 
 .card > p {
@@ -34,9 +122,70 @@
   font-size: 13px;
 }
 
+/* Подключение */
+
+.steps {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding-bottom: 18px;
+}
+
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 34px;
+  bottom: 2px;
+  left: 13px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--border);
+}
+
+.step:last-child {
+  padding-bottom: 0;
+}
+
+.step-number {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.step-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 3px;
+}
+
+.step-title {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.step-body > .field-hint {
+  margin: 0 0 10px;
+}
+
 .connect-form {
   display: grid;
   gap: 14px;
+  margin-top: 10px;
 }
 
 .field {
@@ -45,26 +194,47 @@
 }
 
 .field-label {
+  font-size: 13px;
   font-weight: 600;
 }
 
 .field input,
 .inline-field input,
 select {
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.field input:focus,
+.inline-field input:focus,
+select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+select {
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23687089' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  appearance: none;
 }
 
 .field input {
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
 }
 
 .field-hint {
-  max-width: 520px;
+  max-width: 540px;
   color: var(--muted);
   font-size: 13px;
 }
@@ -82,24 +252,43 @@ select {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.connected p {
-  margin: 0 0 6px;
+.account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.account-info {
+  min-width: 0;
+}
+
+.account-login {
+  font-size: 15px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .connected .actions {
-  margin-top: 14px;
-}
-
-.connected-title {
-  font-size: 15px;
-}
-
-.ok-mark {
-  color: var(--success);
-  font-weight: 700;
+  margin-top: 16px;
 }
 
 .button.danger {
@@ -108,14 +297,21 @@ select {
 
 .alert {
   margin: 14px 0 0;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
 }
 
 .alert.error {
   background: var(--danger-soft);
   color: var(--danger);
 }
+
+.card-title + .alert {
+  margin: 0 0 16px;
+}
+
+/* Списки переключателей */
 
 .option-list {
   margin: 0;
@@ -127,53 +323,56 @@ select {
   border-top: 1px solid var(--border);
 }
 
-.check {
+.toggle {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 0;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
   cursor: pointer;
 }
 
-.check input {
-  width: 16px;
-  height: 16px;
-  margin: 2px 0 0;
-  accent-color: var(--accent);
+.toggle-text {
+  flex: 1;
+  min-width: 0;
 }
 
-.check-title {
+.toggle-title {
   display: block;
+  font-weight: 600;
 }
 
-.check-hint {
+.toggle-hint {
   display: block;
+  margin-top: 1px;
   color: var(--muted);
   font-size: 13px;
 }
 
 .dot {
   flex: none;
-  width: 10px;
-  height: 10px;
-  margin-top: 5px;
-  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
 }
 
 .nested {
   display: grid;
   gap: 4px;
-  padding: 0 0 12px 26px;
+  padding: 0 0 14px;
 }
 
 .inline-field {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .inline-field input {
-  width: 90px;
+  width: 96px;
+  height: 34px;
+  color: var(--text);
 }
 
 .inline-field input:disabled {
@@ -182,7 +381,6 @@ select {
 
 .rows {
   display: grid;
-  gap: 10px;
   margin-bottom: 4px;
 }
 
@@ -192,26 +390,86 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  max-width: 440px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
 }
 
-.saved-badge {
-  color: var(--success);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.saved-badge.visible {
-  opacity: 1;
+.row select {
+  min-width: 200px;
+  font-weight: 400;
 }
 
 .test-notification {
   display: grid;
   gap: 8px;
   justify-items: start;
-  margin-top: 8px;
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
-.card > .alert:first-of-type {
-  margin: 0 0 14px;
+.privacy {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: var(--surface-muted);
+  box-shadow: none;
+}
+
+.privacy h2 {
+  margin-bottom: 4px;
+}
+
+.privacy p {
+  margin: 0;
+}
+
+.page-footer {
+  padding: 8px 4px 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.page-footer p {
+  margin: 0 0 4px;
+}
+
+.page-footer a {
+  color: inherit;
+}
+
+.saved-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--text);
+  box-shadow: var(--shadow-md);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.saved-toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 560px) {
+  .hero-inner {
+    flex-wrap: wrap;
+  }
+
+  .card {
+    padding: 18px 16px;
+  }
 }
