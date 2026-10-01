@@ -30,6 +30,8 @@ jobs:
           name: chrome-extension
           path: .output/*-chrome.zip
           if-no-files-found: error
+          # .output — скрытая папка, без этого upload-artifact её пропускает.
+          include-hidden-files: true
 
       - name: Релиз с архивом
         if: startsWith(github.ref, 'refs/tags/v')
