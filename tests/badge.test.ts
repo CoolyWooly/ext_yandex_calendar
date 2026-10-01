@@ -31,7 +31,7 @@ describe('computeBadge', () => {
   });
 
   it('shows "!" when Yandex rejects the app password', () => {
-    const state = badge([at(5)], 2, { error: { kind: 'auth', message: '', at: NOW } });
+    const state = badge([at(5)], 2, { error: { kind: 'auth', message: '', at: NOW, failures: 1 } });
     expect(state).toMatchObject({ text: '!', color: '#d9342b' });
     expect(state.title).toContain('пароль приложения');
   });
@@ -72,7 +72,7 @@ describe('computeBadge', () => {
   });
 
   it('mentions a lost connection in the tooltip but keeps counting down', () => {
-    const state = badge([at(20)], 0, { error: { kind: 'network', message: '', at: NOW } });
+    const state = badge([at(20)], 0, { error: { kind: 'network', message: '', at: NOW, failures: 1 } });
     expect(state.text).toBe('20м');
     expect(state.title).toContain('Нет связи с календарём, данные на 10:00');
   });

@@ -1,16 +1,26 @@
 import { browser } from 'wxt/browser';
 import { defineBackground } from 'wxt/utils/define-background';
-import { accountItem, getPreferences, inboxItem, snapshotItem, watchPreferences } from '../storage/store';
+import {
+  accountItem,
+  getPreferences,
+  inboxItem,
+  type Snapshot,
+  snapshotItem,
+  watchPreferences,
+} from '../storage/store';
 import { recordChanges, takeDueDigest, unseenCount } from '../sync/changes';
 import type { BackgroundMessage } from '../sync/messages';
 import { isReminderAlarm, scheduleReminderAlarms, takeDueReminders } from '../sync/reminders';
-import { syncNow } from '../sync/sync';
+import { nextScheduledAttempt, syncNow } from '../sync/sync';
 import { applyBadge, computeBadge } from '../ui/badge';
 import {
+  AUTH_ERROR_NOTIFICATION,
   clearFinishedReminders,
+  describeAuthError,
   describeChanges,
   describeDigest,
   describeReminder,
+  dismissNotification,
   forgetNotification,
   handleNotificationClick,
   showNotifications,
@@ -32,7 +42,7 @@ export default defineBackground(() => {
   browser.runtime.onStartup.addListener(() => void schedule());
 
   browser.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === SYNC_ALARM) void runSync();
+    if (alarm.name === SYNC_ALARM) void runSync({ scheduled: true });
     if (alarm.name === TICK_ALARM) void refreshBadge().then(checkReminders);
     if (isReminderAlarm(alarm.name)) void checkReminders();
   });
@@ -64,21 +74,28 @@ async function schedule(): Promise<void> {
   await runSync();
 }
 
+interface SyncRequest {
+  /** По расписанию — после ошибок выдерживаем паузу. Открытие окна и смена настроек — сразу. */
+  scheduled: boolean;
+}
+
 let running: Promise<void> | null = null;
-let rerunRequested = false;
+let queued: SyncRequest | null = null;
 
 /** Одна синхронизация за раз; запрос во время работы выполняется сразу после неё. */
-function runSync(): Promise<void> {
+function runSync(request: SyncRequest = { scheduled: false }): Promise<void> {
   if (running) {
-    rerunRequested = true;
+    queued = { scheduled: (queued?.scheduled ?? true) && request.scheduled };
     return running;
   }
   running = (async () => {
     try {
-      do {
-        rerunRequested = false;
-        await syncAndNotify();
-      } while (rerunRequested);
+      let next: SyncRequest | null = request;
+      while (next) {
+        queued = null;
+        await syncAndNotify(next);
+        next = queued;
+      }
     } finally {
       running = null;
     }
@@ -86,9 +103,18 @@ function runSync(): Promise<void> {
   return running;
 }
 
-async function syncAndNotify(): Promise<void> {
+async function syncAndNotify({ scheduled }: SyncRequest): Promise<void> {
+  if (scheduled) {
+    const [stored, { pollMinutes }] = await Promise.all([snapshotItem.getValue(), getPreferences()]);
+    if (Date.now() < nextScheduledAttempt(stored, pollMinutes)) {
+      await refreshBadge();
+      return;
+    }
+  }
+
   const { previous, snapshot } = await syncNow();
   const now = Date.now();
+  await reportAuthState(previous, snapshot);
   const changes = await recordChanges(previous, snapshot, now);
   const preferences = await getPreferences();
 
@@ -101,6 +127,15 @@ async function syncAndNotify(): Promise<void> {
   await scheduleReminderAlarms(snapshot, preferences, now);
   await checkReminders();
   await refreshBadge();
+}
+
+/** Об ошибке пароля сообщаем один раз, когда она появилась; после исправления убираем. */
+async function reportAuthState(previous: Snapshot, snapshot: Snapshot): Promise<void> {
+  if (snapshot.error?.kind !== 'auth') {
+    await dismissNotification(AUTH_ERROR_NOTIFICATION);
+  } else if (previous.error?.kind !== 'auth') {
+    await showNotifications([describeAuthError(browser.runtime.getURL('/options.html'))]);
+  }
 }
 
 let reminderQueue: Promise<void> = Promise.resolve();

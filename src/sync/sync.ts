@@ -16,6 +16,8 @@ import {
 
 /** Даже если ctag не менялся, раз в 15 минут перезагружаем встречи — на случай, если сервер его не обновил. */
 const FULL_REFRESH_MS = 15 * 60_000;
+/** Дольше этого между попытками после ошибок не ждём. */
+const MAX_RETRY_DELAY_MS = 30 * 60_000;
 
 type CalendarClient = Pick<CalDavClient, 'listCalendars' | 'fetchEvents'>;
 
@@ -118,7 +120,10 @@ export async function syncNow(options: SyncOptions = {}): Promise<SyncResult> {
       calendars: states,
     };
   } catch (error) {
-    snapshot = { ...previous, error: toSyncError(error, now) };
+    // Аккаунт запоминаем и в снимке с ошибкой: иначе следующая попытка не увидит прошлую
+    // ошибку — счётчик неудач не растёт, а уведомление о пароле повторялось бы.
+    const failures = (previous.error?.failures ?? 0) + 1;
+    snapshot = { ...previous, login: account.login, error: toSyncError(error, now, failures) };
   }
 
   await snapshotItem.setValue(snapshot);
@@ -133,7 +138,20 @@ async function rememberCalendars(account: Account, calendars: CalendarInfo[]): P
   }
 }
 
-function toSyncError(error: unknown, now: number): SyncError {
-  if (error instanceof CalDavError) return { kind: error.kind, message: error.message, at: now };
-  return { kind: 'unknown', message: error instanceof Error ? error.message : String(error), at: now };
+/**
+ * Когда снова идти на сервер по расписанию после ошибок. Неверный пароль — не чаще раза в
+ * 30 минут: частые неудачные входы Яндекс может счесть подбором пароля. Остальные ошибки —
+ * с удвоением паузы: 2, 4, 8… минут, но не дольше 30.
+ */
+export function nextScheduledAttempt(snapshot: Snapshot, pollMinutes: number): number {
+  const { error } = snapshot;
+  if (!error) return 0;
+  if (error.kind === 'auth') return error.at + MAX_RETRY_DELAY_MS;
+  const delay = pollMinutes * 60_000 * 2 ** Math.max(0, (error.failures ?? 1) - 1);
+  return error.at + Math.min(delay, MAX_RETRY_DELAY_MS);
+}
+
+function toSyncError(error: unknown, now: number, failures: number): SyncError {
+  const message = error instanceof Error ? error.message : String(error);
+  return { kind: error instanceof CalDavError ? error.kind : 'unknown', message, at: now, failures };
 }

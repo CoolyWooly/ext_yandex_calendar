@@ -21,12 +21,14 @@ type CheckState = { status: 'idle' } | { status: 'checking' } | { status: 'error
 
 interface Props {
   account: Account | null;
+  /** Яндекс перестал принимать сохранённый пароль: когда это обнаружилось. */
+  authErrorAt: number | null;
   onConnected: (account: Account) => Promise<void>;
   onDisconnect: () => Promise<void>;
 }
 
-export function ConnectionSection({ account, onConnected, onDisconnect }: Props) {
-  const [editing, setEditing] = useState(account === null);
+export function ConnectionSection({ account, authErrorAt, onConnected, onDisconnect }: Props) {
+  const [editing, setEditing] = useState(account === null || authErrorAt !== null);
   const [login, setLogin] = useState(account?.login ?? '');
   const [password, setPassword] = useState('');
   const [check, setCheck] = useState<CheckState>({ status: 'idle' });
@@ -70,6 +72,13 @@ export function ConnectionSection({ account, onConnected, onDisconnect }: Props)
   return (
     <section class="card">
       <h2>Подключение</h2>
+
+      {account && authErrorAt !== null && check.status !== 'checking' && (
+        <p class="alert error" role="alert">
+          С {formatDateTime(authErrorAt)} Яндекс не принимает сохранённый пароль приложения — встречи не
+          обновляются. Скорее всего, пароль отозвали. Создайте новый пароль приложения и введите его ниже.
+        </p>
+      )}
 
       {account && !editing ? (
         <div class="connected">

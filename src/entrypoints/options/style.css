@@ -204,3 +204,14 @@ select {
 .saved-badge.visible {
   opacity: 1;
 }
+
+.test-notification {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  margin-top: 8px;
+}
+
+.card > .alert:first-of-type {
+  margin: 0 0 14px;
+}

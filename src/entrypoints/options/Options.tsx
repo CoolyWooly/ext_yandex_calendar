@@ -7,12 +7,14 @@ import {
   defaultCalendarSelection,
   getPreferences,
   HORIZON_DAYS_OPTIONS,
+  snapshotItem,
   type NotifyPreferences,
   parseReminderMinutes,
   POLL_MINUTES_OPTIONS,
   type Preferences,
   updatePreferences,
 } from '../../storage/store';
+import { describeTestNotification, showNotifications } from '../../ui/notifications';
 import { ConnectionSection } from './ConnectionSection';
 
 const POLL_LABELS: Record<number, string> = {
@@ -34,12 +36,17 @@ export function Options() {
   const [account, setAccount] = useState<Account | null>();
   const [prefs, setPrefs] = useState<Preferences>();
   const [savedAt, setSavedAt] = useState(0);
+  // Когда Яндекс перестал принимать пароль (по последней синхронизации); null — всё в порядке.
+  const [authErrorAt, setAuthErrorAt] = useState<number | null>(null);
 
   useEffect(() => {
-    void Promise.all([accountItem.getValue(), getPreferences()]).then(([storedAccount, storedPrefs]) => {
-      setAccount(storedAccount);
-      setPrefs(storedPrefs);
-    });
+    void Promise.all([accountItem.getValue(), getPreferences(), snapshotItem.getValue()]).then(
+      ([storedAccount, storedPrefs, snapshot]) => {
+        setAccount(storedAccount);
+        setPrefs(storedPrefs);
+        setAuthErrorAt(snapshot.error?.kind === 'auth' ? snapshot.error.at : null);
+      },
+    );
   }, []);
 
   if (account === undefined || !prefs) return null;
@@ -52,6 +59,7 @@ export function Options() {
   async function handleConnected(next: Account) {
     await accountItem.setValue(next);
     setAccount(next);
+    setAuthErrorAt(null);
     // Выбор сохраняем, но выкидываем календари, которых больше нет (например, сменили аккаунт).
     const known = new Set(next.calendars.map((calendar) => calendar.href));
     const kept = prefs!.selectedCalendars?.filter((href) => known.has(href)) ?? [];
@@ -76,7 +84,12 @@ export function Options() {
         </p>
       </header>
 
-      <ConnectionSection account={account} onConnected={handleConnected} onDisconnect={handleDisconnect} />
+      <ConnectionSection
+        account={account}
+        authErrorAt={authErrorAt}
+        onConnected={handleConnected}
+        onDisconnect={handleDisconnect}
+      />
 
       {account && (
         <CalendarsSection
@@ -183,7 +196,32 @@ function NotificationsSection({ prefs, onChange }: { prefs: Preferences; onChang
           />
         </Toggle>
       </ul>
+      <TestNotification />
     </section>
+  );
+}
+
+function TestNotification() {
+  const [shown, setShown] = useState(false);
+
+  async function show() {
+    await showNotifications([describeTestNotification()]);
+    setShown(true);
+  }
+
+  return (
+    <div class="test-notification">
+      <button class="button" onClick={() => void show()}>
+        Показать тестовое уведомление
+      </button>
+      {shown && (
+        <p class="field-hint">
+          Не появилось или сразу исчезло? В macOS откройте «Системные настройки → Уведомления → Google Chrome»,
+          разрешите уведомления и выберите стиль «Постоянно». Проверьте также, что не включён режим «Не
+          беспокоить».
+        </p>
+      )}
+    </div>
   );
 }
 

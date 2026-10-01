@@ -45,6 +45,8 @@ export interface SyncError {
   kind: CalDavErrorKind | 'unknown';
   message: string;
   at: number;
+  /** Сколько синхронизаций подряд закончились ошибкой. */
+  failures: number;
 }
 
 export interface CalendarSyncState {

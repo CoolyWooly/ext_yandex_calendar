@@ -5,10 +5,12 @@ import type { Meeting } from '../src/calendar/types';
 import { DEFAULT_PREFERENCES, EMPTY_SNAPSHOT } from '../src/storage/store';
 import {
   clearFinishedReminders,
+  describeAuthError,
   describeChange,
   describeChanges,
   describeDigest,
   describeReminder,
+  dismissNotification,
   handleNotificationClick,
   showNotifications,
 } from '../src/ui/notifications';
@@ -195,5 +197,23 @@ describe('notification clicks and cleanup', () => {
     await clearFinishedReminders({ ...EMPTY_SNAPSHOT, meetings: [call, other] }, call.end);
 
     expect(Object.keys(fakeBrowser.notifications.getAllCreateOptions())).toEqual(['remind:other|1']);
+  });
+});
+
+describe('auth error notification', () => {
+  beforeEach(() => fakeBrowser.reset());
+
+  it('stays on screen, leads to the settings and can be dismissed', async () => {
+    const spec = describeAuthError('chrome-extension://id/options.html');
+    expect(spec).toMatchObject({
+      id: 'auth-error',
+      url: 'chrome-extension://id/options.html',
+      buttons: [{ title: 'Открыть настройки', url: 'chrome-extension://id/options.html' }],
+      requireInteraction: true,
+    });
+
+    await showNotifications([spec]);
+    await dismissNotification('auth-error');
+    expect(fakeBrowser.notifications.getAllCreateOptions()).toEqual({});
   });
 });

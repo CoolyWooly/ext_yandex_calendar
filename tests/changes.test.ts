@@ -52,7 +52,7 @@ describe('recordChanges', () => {
   });
 
   it('does nothing when the sync failed', async () => {
-    const failed = snapshot([], NOW, { error: { kind: 'network', message: '', at: NOW } });
+    const failed = snapshot([], NOW, { error: { kind: 'network', message: '', at: NOW, failures: 1 } });
     expect(await recordChanges(EMPTY_SNAPSHOT, failed, NOW)).toEqual([]);
     expect(await historyItem.getValue()).toMatchObject({ baselineAt: null });
   });

@@ -18,6 +18,7 @@ const MINUTE = 60_000;
 // Состояние подставного сервера.
 let ctag = 1;
 let objects: string[] = [];
+let server: 'ok' | 'wrong-password' | 'offline' = 'ok';
 
 function escapeXml(text: string): string {
   return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -34,6 +35,8 @@ function reportXml(): string {
 }
 
 async function fakeYandex(_url: string, init: RequestInit): Promise<Response> {
+  if (server === 'offline') throw new TypeError('Failed to fetch');
+  if (server === 'wrong-password') return new Response('', { status: 401 });
   if (init.method === 'PROPFIND') {
     return new Response(propfindCalendars.replace('1790751946000', String(ctag)), { status: 207 });
   }
@@ -58,6 +61,7 @@ describe('background', () => {
     vi.stubGlobal('fetch', vi.fn(fakeYandex));
     ctag = 1;
     objects = [icsOf(week)];
+    server = 'ok';
 
     const calendars = parseCalendarList(propfindCalendars.replace('1790751946000', '1'));
     await accountItem.setValue({ login: 'user@example.com', appPassword: 'secret', calendars, verifiedAt: 0 });
@@ -67,6 +71,7 @@ describe('background', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('stays quiet on the first sync and plans reminders for the stand-up', async () => {
@@ -149,5 +154,56 @@ ATTENDEE;PARTSTAT=NEEDS-ACTION:mailto:user@example.com`),
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(created).toHaveBeenCalledTimes(1);
     expect(created.mock.calls[0]![1]).toMatchObject({ title: '⏰ Через 1 мин: Стендап Web&App' });
+  });
+
+  it('reports a rejected password once, backs off, and recovers with a new password', async () => {
+    await syncFromPopup();
+    const fetchMock = vi.mocked(fetch);
+
+    server = 'wrong-password';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await syncFromPopup();
+    expect(Object.keys(notifications())).toEqual(['auth-error']);
+    expect(notifications()['auth-error']).toMatchObject({ title: '🔑 Яндекс не принимает пароль приложения' });
+    expect(await badgeText()).toBe('!');
+
+    // Повторная неудача не дублирует уведомление.
+    const created = vi.spyOn(fakeBrowser.notifications, 'create');
+    await syncFromPopup();
+    expect(created).not.toHaveBeenCalled();
+
+    // По расписанию в Яндекс не ходим полчаса.
+    const calls = fetchMock.mock.calls.length;
+    vi.setSystemTime(local(2026, 10, 1, 7, 20));
+    await fireAlarm('sync');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(fetchMock.mock.calls.length).toBe(calls);
+
+    // Новый пароль в настройках — сразу проверяем, уведомление и «!» уходят.
+    server = 'ok';
+    const account = await accountItem.getValue();
+    await accountItem.setValue({ ...account!, appPassword: 'new-secret' });
+    await vi.waitFor(() => expect(notifications()).toEqual({}));
+    await vi.waitFor(async () => expect(await badgeText()).not.toBe('!'));
+  });
+
+  it('waits longer between scheduled attempts while the network is down', async () => {
+    await syncFromPopup();
+    const fetchMock = vi.mocked(fetch);
+
+    server = 'offline';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await fireAlarm('sync');
+    await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(2));
+    const afterFirstFailure = fetchMock.mock.calls.length;
+
+    vi.setSystemTime(local(2026, 10, 1, 7, 3));
+    await fireAlarm('sync');
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(fetchMock.mock.calls.length).toBe(afterFirstFailure);
+
+    vi.setSystemTime(local(2026, 10, 1, 7, 4));
+    await fireAlarm('sync');
+    await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBe(afterFirstFailure + 1));
   });
 });

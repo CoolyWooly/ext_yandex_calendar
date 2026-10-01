@@ -121,6 +121,32 @@ export function describeReminder(meeting: Meeting, now: number): NotificationSpe
   };
 }
 
+export const AUTH_ERROR_NOTIFICATION = 'auth-error';
+
+/** Яндекс перестал принимать пароль приложения: показываем один раз за всю «поломку». */
+export function describeAuthError(optionsUrl: string): NotificationSpec {
+  return {
+    id: AUTH_ERROR_NOTIFICATION,
+    title: '🔑 Яндекс не принимает пароль приложения',
+    message: 'Встречи и напоминания не обновляются. Создайте новый пароль приложения для «Календаря» и введите его в настройках.',
+    url: optionsUrl,
+    buttons: [{ title: 'Открыть настройки', url: optionsUrl }],
+    requireInteraction: true,
+  };
+}
+
+/** Пробное уведомление со страницы настроек — проверить, что система их показывает. */
+export function describeTestNotification(): NotificationSpec {
+  return {
+    id: 'test',
+    title: '⏰ Так будут выглядеть напоминания',
+    message: 'Уведомления работают. Напоминания перед встречами не исчезают, пока их не закрыть.',
+    url: CALENDAR_URL,
+    buttons: [],
+    requireInteraction: true,
+  };
+}
+
 /** Ежедневная сводка по приглашениям без ответа. */
 export function describeDigest(pending: Meeting[], now: number): NotificationSpec {
   const count = pending.length;
@@ -230,6 +256,15 @@ export async function clearFinishedReminders(snapshot: Snapshot, now: number): P
 export async function forgetNotification(id: string): Promise<void> {
   const targets = await targetsItem.getValue();
   if (!(id in targets)) return;
+  delete targets[id];
+  await targetsItem.setValue(targets);
+}
+
+/** Убирает показанное расширением уведомление, если оно ещё на экране. */
+export async function dismissNotification(id: string): Promise<void> {
+  const targets = await targetsItem.getValue();
+  if (!(id in targets)) return;
+  await browser.notifications.clear(id);
   delete targets[id];
   await targetsItem.setValue(targets);
 }

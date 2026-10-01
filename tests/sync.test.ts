@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { CalDavError, parseCalendarList } from '../src/caldav/client';
-import { accountItem, snapshotItem, updatePreferences } from '../src/storage/store';
-import { syncNow } from '../src/sync/sync';
+import { accountItem, EMPTY_SNAPSHOT, type Snapshot, snapshotItem, updatePreferences } from '../src/storage/store';
+import { nextScheduledAttempt, syncNow } from '../src/sync/sync';
 import propfindCalendars from './fixtures/propfind-calendars.xml?raw';
 import week from './fixtures/report-week.xml?raw';
 import { icsOf, local } from './helpers';
@@ -91,7 +91,7 @@ describe('syncNow', () => {
 
     expect(snapshot.meetings).toHaveLength(2);
     expect(snapshot.syncedAt).toBe(NOW);
-    expect(snapshot.error).toEqual({ kind: 'auth', message: 'bad password', at: NOW + 60_000 });
+    expect(snapshot.error).toEqual({ kind: 'auth', message: 'bad password', at: NOW + 60_000, failures: 1 });
   });
 
   it('returns the snapshot it started from, ignoring one from another account', async () => {
@@ -106,11 +106,45 @@ describe('syncNow', () => {
     expect(third.previous.syncedAt).toBeNull();
   });
 
+  it('counts failures in a row and forgets them after a successful sync', async () => {
+    const failing = stubClient();
+    failing.listCalendars.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await syncNow({ now: NOW, createClient: () => failing });
+    const { snapshot: second } = await syncNow({ now: NOW + 60_000, createClient: () => failing });
+    expect(second.error).toMatchObject({ kind: 'unknown', failures: 2 });
+
+    const { snapshot: recovered } = await syncNow({ now: NOW + 120_000, createClient: () => stubClient() });
+    expect(recovered.error).toBeNull();
+  });
+
   it('clears everything after the account is disconnected', async () => {
     await syncNow({ now: NOW, createClient: () => stubClient() });
     await accountItem.setValue(null);
 
     const { snapshot } = await syncNow({ now: NOW, createClient: () => stubClient() });
     expect(snapshot.meetings).toEqual([]);
+  });
+});
+
+describe('nextScheduledAttempt', () => {
+  const MINUTE = 60_000;
+  const failed = (kind: 'auth' | 'network', failures: number): Snapshot => ({
+    ...EMPTY_SNAPSHOT,
+    error: { kind, message: '', at: NOW, failures },
+  });
+
+  it('does not wait when the last sync succeeded', () => {
+    expect(nextScheduledAttempt(EMPTY_SNAPSHOT, 2)).toBe(0);
+  });
+
+  it('doubles the pause after each failure, up to 30 minutes', () => {
+    expect([1, 2, 3, 4, 5, 10].map((failures) => (nextScheduledAttempt(failed('network', failures), 2) - NOW) / MINUTE)).toEqual([
+      2, 4, 8, 16, 30, 30,
+    ]);
+  });
+
+  it('retries a rejected password only every 30 minutes', () => {
+    expect(nextScheduledAttempt(failed('auth', 1), 1)).toBe(NOW + 30 * MINUTE);
   });
 });

@@ -16,6 +16,7 @@ import {
 } from '../../storage/store';
 import type { BackgroundMessage } from '../../sync/messages';
 import { formatAgo, plural } from '../../ui/format';
+import { RefreshIcon, SettingsIcon } from '../../ui/icons';
 import { MeetingItem } from './MeetingItem';
 
 const HORIZON_TEXT: Record<number, string> = {
@@ -96,11 +97,11 @@ export function Popup() {
             disabled={syncing}
             onClick={() => void sync()}
           >
-            ⟳
+            <RefreshIcon />
           </button>
         )}
         <button class="icon-button" title="Настройки" aria-label="Настройки" onClick={openOptions}>
-          ⚙
+          <SettingsIcon />
         </button>
       </header>
 
