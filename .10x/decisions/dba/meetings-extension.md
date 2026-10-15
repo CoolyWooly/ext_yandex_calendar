@@ -8,7 +8,7 @@
 | `local:preferences` | `Partial<Preferences>` | Настройки; читаются с подстановкой `DEFAULT_PREFERENCES` | константа |
 | `local:snapshot` | `Snapshot` | Встречи за диапазон, ctag и время загрузки по календарям, последняя ошибка | ∝ встречам за 1–14 дней |
 | `local:history` | `ChangeHistory` | `knownUids` → когда видели (TTL 60 дней), `baselineAt`, `digestDay` | ∝ UID за 60 дней |
-| `local:inbox` | `InboxEntry[]` | Непросмотренные изменения, ≤ 50, прошедшие отбрасываются | ограничен |
+| `local:inbox` | `InboxEntry[]` | Непросмотренные изменения, ≤ 50, прошедшие отбрасываются. Пишет только фон, под замком (ADR-002) | ограничен |
 | `local:firedReminders` | `Record<string, number>` | Показанные напоминания, TTL 2 дня | ограничен |
 | `session:notificationTargets` | `Record<id, {url, buttons}>` | Куда вести по клику на уведомление | ограничен |
 

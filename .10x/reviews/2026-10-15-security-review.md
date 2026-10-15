@@ -8,3 +8,9 @@
 - Секреты, сеть, права манифеста не менялись.
 
 Подробности — `decisions/security/auth-retry-pause.md`.
+
+---
+
+# Security review — 2026-10-15 — inbox-single-writer
+
+**Вердикт:** ✅ уязвимостей не внесено. Новое сообщение `take-inbox` доступно только страницам расширения и не раскрывает новых данных. Подробности — `decisions/security/inbox-single-writer.md`.

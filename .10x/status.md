@@ -1,13 +1,13 @@
 # Статус проекта
 
 **Проект:** Встречи для Яндекс Календаря — расширение Chrome (Manifest V3)
-**Фаза:** inbox-single-writer — Design Complete (ADR-002), дальше реализация. auth-retry-pause готово, не выпущено
+**Фаза:** inbox-single-writer и auth-retry-pause — Verification Complete; ждут выпуска в следующей версии (не выпущено)
 **Обновлено:** 2026-10-15
 **Версия:** 1.1.0 (тег `v1.1.0`), ветка `master`
 
-## Последние проверки (2026-10-15, после auth-retry-pause)
+## Последние проверки (2026-10-15, после inbox-single-writer)
 - `npm run typecheck` — без ошибок
-- `npm test` — 14 файлов, 145 тестов, все проходят
+- `npm test` — 14 файлов, 147 тестов, все проходят
 - `npm run build` — ок
 
 ## Фичи
@@ -15,7 +15,7 @@
 |---|---|---|
 | `meetings-extension` | Расширение целиком: синхронизация, список, напоминания, уведомления, настройки | Delivered v1.1.0 |
 | `auth-retry-pause` | Пауза после неверного пароля для всех автоматических синхронизаций | Verification Complete — [ADR-001](adrs/001-auth-retry-pause.md), [QA](reviews/2026-10-15-qa-report.md), [Security](reviews/2026-10-15-security-review.md); в CHANGELOG `[Unreleased]` |
-| `inbox-single-writer` | Один писатель списка непросмотренных изменений — фон | Design Complete — [ADR-002](adrs/002-inbox-single-writer.md) |
+| `inbox-single-writer` | Один писатель списка непросмотренных изменений — фон | Verification Complete — [ADR-002](adrs/002-inbox-single-writer.md); в CHANGELOG `[Unreleased]` |
 | `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена |
 
 ## Решено
@@ -27,8 +27,8 @@
 | # | Замечание | Статус |
 |---|---|---|
 | 1 | Пауза после неверного пароля обходится | ✅ исправлено (`auth-retry-pause`) |
-| 2 | Гонка вокруг inbox | в работе (`inbox-single-writer`) |
-| 3 | Предел повторений серии от DTSTART | ждёт |
+| 2 | Гонка вокруг inbox | ✅ исправлено (`inbox-single-writer`) |
+| 3 | Предел повторений серии от DTSTART | следующее |
 | 4 | Нет тестов UI, линтера, Dependabot | ждёт |
 
 ## Открытые вопросы к пользователю

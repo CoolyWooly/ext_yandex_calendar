@@ -10,3 +10,4 @@
 
 ## Фичи
 - [auth-retry-pause](auth-retry-pause.md)
+- [inbox-single-writer](inbox-single-writer.md)
