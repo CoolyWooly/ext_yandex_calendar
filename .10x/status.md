@@ -1,9 +1,9 @@
 # Статус проекта
 
 **Проект:** Встречи для Яндекс Календаря — расширение Chrome (Manifest V3)
-**Фаза:** версия 1.2.0 подготовлена к выпуску (коммит «Версия 1.2.0», архив собран), тег `v1.2.0` не поставлен, в CWS не отправлено
+**Фаза:** v1.2.0 выпущена на GitHub 2026-10-15 ([релиз](https://github.com/CoolyWooly/ext_yandex_calendar/releases/tag/v1.2.0), CI 38715838266 зелёный); в Chrome Web Store не загружена
 **Обновлено:** 2026-10-15
-**Версия:** 1.2.0 в `package.json` (последний тег — `v1.1.0`), ветка `master`
+**Версия:** 1.2.0 (тег `v1.2.0`), ветка `master`
 
 ## Последние проверки (2026-10-15, после meeting-list-redesign; Node 26)
 - `npm run lint` — чисто
@@ -20,7 +20,7 @@
 | `occurrence-limit` | Предел перебора повторений серии 100 000 + предупреждение | Verification Complete; в CHANGELOG `[Unreleased]` |
 | `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); первый прогон CI на GitHub [38711158754](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754) — зелёный (check 22, check 24, package) |
 | `meeting-list-redesign` | Список встреч по дням, без карточки «Следующая встреча» и плашки приглашений, вход в созвон иконкой | Verification Complete — [спека](specs/2026-10-15-meeting-list-redesign-design.md), [ADR-004](adrs/004-meeting-list-by-days.md), QA и Security в `reviews/`; в CHANGELOG `[Unreleased]`, картинки магазина пересняты; запушено, CI [38714808439](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38714808439) зелёный; входит в 1.2.0 |
-| `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена. 1.2.0 готова к загрузке — чек-лист в `decisions/devops/meetings-extension.md` |
+| `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена. 1.2.0 выпущена на GitHub, загрузка в CWS — за пользователем, чек-лист в `decisions/devops/meetings-extension.md` |
 
 ## Решено
 - 2026-10-15: находки discovery подтверждены; разбираем замечания ревью, первым — паузу после неверного пароля.

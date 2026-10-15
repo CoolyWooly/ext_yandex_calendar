@@ -18,9 +18,9 @@
 - PR Dependabot #1–#5 (мажорные версии Actions, `happy-dom` 21, `preact` 11) — CI зелёный, не смёржены.
 
 ## Выпуск 1.2.0
-Версия поднята, CHANGELOG `[1.2.0] — 2026-10-15`, архив `.output/yandex-calendar-meetings-1.2.0-chrome.zip`
-собран и проверен. Осталось: пуш и тег `v1.2.0` (CI создаст релиз), затем загрузка в Chrome Web Store
-по чек-листу в `decisions/devops/meetings-extension.md`.
+Выпущена на GitHub: https://github.com/CoolyWooly/ext_yandex_calendar/releases/tag/v1.2.0 (CI 38715838266
+зелёный). Осталось: загрузить архив из релиза в Chrome Web Store, заменить описание и три картинки — чек-лист
+в `decisions/devops/meetings-extension.md`.
 
 ## Решено
 `.10x/` хранится в публичном репозитории.
