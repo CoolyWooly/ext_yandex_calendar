@@ -1,19 +1,18 @@
 # Handoff
 
-**От:** Architect + Staff Engineer · **Кому:** SDE
+**От:** QA + Security · **Кому:** пользователю (выпуск) и Senior Engineer (следующее замечание)
 **Дата:** 2026-10-15
-**Фича:** `auth-retry-pause` — [ADR-001](adrs/001-auth-retry-pause.md)
 
-## Задача
-Синхронизации не по будильнику должны выдерживать 30-минутную паузу после неверного пароля. Сразу в Яндекс
-идут только «Обновить» в окне и изменение пароля/почты/перепроверка в настройках (и отключение аккаунта).
+## Готово
+`auth-retry-pause` ([ADR-001](adrs/001-auth-retry-pause.md)): автоматические синхронизации (открытие окна,
+настройки, запуск браузера, расписание) после неверного пароля ждут 30 минут; «Обновить» и
+ввод/перепроверка пароля идут сразу. Тесты 145/145, сборка ок. Записано в CHANGELOG `[Unreleased]`.
+Не выпущено: версия не поднята, тег не поставлен, в Chrome вручную не проверялось.
 
-## План
-1. `sync.ts`: `nextAutomaticAttempt(snapshot)`; `nextScheduledAttempt` переиспользует её.
-2. `background.ts`: `SyncTrigger` `schedule` / `auto` / `user`, слияние очереди по настойчивости, повод из каждого источника; изменение аккаунта = `user`, если поменялись `login`, `appPassword`, `verifiedAt` или аккаунт удалён.
-3. `messages.ts` + `Popup.tsx`: `manual` у сообщения `sync`, кнопка «Обновить» шлёт `manual: true`.
-4. Тесты: пауза для открытия окна и настроек; «Обновить» идёт сразу; перепроверенный пароль снимает «!»; отключение во время паузы очищает снимок; пауза после сетевой ошибки не мешает открытию окна.
-5. README (FAQ «Как часто проверяется календарь?»), SECURITY.md, CHANGELOG `[Unreleased]`.
+## Выпуск (когда решит пользователь)
+`npm version X.Y.Z --no-git-tag-version`, переименовать `[Unreleased]` в CHANGELOG, тег `vX.Y.Z`, пуш —
+CI создаст релиз; затем загрузка в Chrome Web Store (`decisions/devops/meetings-extension.md`).
 
-## Остальные замечания ревью
-После этой фичи — `decisions/senior-engineer/meetings-extension.md`, п. 2–4.
+## Следующее
+Замечание 2 — гонка вокруг inbox (`decisions/senior-engineer/meetings-extension.md`): `recordChanges`
+читает и пишет `inboxItem`, popup одновременно очищает его.
