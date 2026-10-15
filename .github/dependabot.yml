@@ -1,0 +1,17 @@
+# Обновления зависимостей раз в неделю. Мелкие обновления инструментов разработки — одним PR,
+# чтобы не разбирать по пять PR в неделю; мажорные версии и зависимости расширения — по одному.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
