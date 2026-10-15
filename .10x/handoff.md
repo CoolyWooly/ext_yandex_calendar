@@ -1,6 +1,6 @@
 # Handoff
 
-**От:** QA + Security · **Кому:** пользователю (выпуск)
+**От:** DevOps · **Кому:** пользователю (тег и Chrome Web Store)
 **Дата:** 2026-10-15
 
 ## Запушено в `master`, не выпущено
@@ -17,9 +17,10 @@
 - Окно в настоящем Chrome: `npm run build`, «Загрузить распакованное» `.output/chrome-mv3`.
 - PR Dependabot #1–#5 (мажорные версии Actions, `happy-dom` 21, `preact` 11) — CI зелёный, не смёржены.
 
-## Выпуск
-`npm version X.Y.Z --no-git-tag-version`, переименовать `[Unreleased]` в CHANGELOG, тег `vX.Y.Z`, пуш —
-CI создаст релиз; затем Chrome Web Store (`decisions/devops/meetings-extension.md`).
+## Выпуск 1.2.0
+Версия поднята, CHANGELOG `[1.2.0] — 2026-10-15`, архив `.output/yandex-calendar-meetings-1.2.0-chrome.zip`
+собран и проверен. Осталось: пуш и тег `v1.2.0` (CI создаст релиз), затем загрузка в Chrome Web Store
+по чек-листу в `decisions/devops/meetings-extension.md`.
 
 ## Решено
 `.10x/` хранится в публичном репозитории.
