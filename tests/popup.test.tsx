@@ -82,6 +82,13 @@ let inbox: InboxEntry[];
 
 const syncRequests = () => messages.filter((message) => message.type === 'sync');
 
+/** Разделы окна: заголовок дня и названия встреч в нём. */
+const sections = () =>
+  [...document.querySelectorAll('section')].map((section) => [
+    section.querySelector('.section-head')?.textContent,
+    [...section.querySelectorAll('.meeting-title')].map((title) => title.textContent),
+  ]);
+
 async function open(snapshot: Snapshot, account: Account | null = ACCOUNT) {
   await accountItem.setValue(account);
   await snapshotItem.setValue(snapshot);
@@ -122,15 +129,49 @@ describe('Popup', () => {
     expect(syncRequests()).toEqual([]);
   });
 
-  it('shows the next meeting on top and the rest by day', async () => {
+  it('lists meetings by day without a next-meeting card or an invitations banner', async () => {
     await open(synced([standup, review, retro]));
 
-    expect(await screen.findByText('Следующая встреча')).toBeTruthy();
-    expect(screen.getByText('Стендап')).toBeTruthy();
-    expect(screen.getByText('Ревью дизайна')).toBeTruthy();
-    expect(screen.getByText('Ретро')).toBeTruthy();
+    expect(await screen.findByText('Стендап')).toBeTruthy();
+    expect(sections()).toEqual([
+      ['Сегодня', ['Стендап', 'Ревью дизайна']],
+      ['Завтра', ['Ретро']],
+    ]);
+    expect(screen.getByText('2 октября')).toBeTruthy();
     expect(screen.getByText('нужно ответить')).toBeTruthy();
-    expect(screen.getByText('1 приглашение ждёт ответа')).toBeTruthy();
+    expect(screen.queryByText('Следующая встреча')).toBeNull();
+    expect(screen.queryByText(/ждёт ответа/)).toBeNull();
+  });
+
+  it('keeps a meeting in progress under today and highlights its join button', async () => {
+    vi.setSystemTime(at(1, 10, 5));
+    await open(synced([standup, review]));
+
+    const live = await screen.findByText('идёт ещё 10 мин');
+    expect(live.className).toBe('meta-live');
+    expect(sections()).toEqual([['Сегодня', ['Стендап', 'Ревью дизайна']]]);
+    expect(screen.queryByText('Сейчас')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Войти · Телемост' }).classList.contains('primary')).toBe(true);
+  });
+
+  it('hurries only my meetings that start soon', async () => {
+    const booking = meeting({
+      ...review,
+      uid: 'booking',
+      title: 'Бронь переговорки',
+      start: at(1, 9, 50),
+      end: at(1, 10, 30),
+      join: { url: 'https://meet.google.com/abc-defg-hij', provider: 'Google Meet' },
+      myStatus: 'none',
+      organizer: { name: 'Олег', email: 'oleg@example.com' },
+    });
+    vi.setSystemTime(at(1, 9, 48));
+    await open(synced([booking, standup]));
+
+    expect((await screen.findByText('через 12 мин')).className).toBe('meta-soon');
+    expect(screen.getByRole('button', { name: 'Войти · Телемост' }).classList.contains('primary')).toBe(true);
+    expect(screen.getByText(/через 2 мин/).className).toBe('meeting-meta');
+    expect(screen.getByRole('button', { name: 'Войти · Google Meet' }).classList.contains('primary')).toBe(false);
   });
 
   it('syncs when opened and checks even a rejected password on Refresh', async () => {
@@ -176,7 +217,7 @@ describe('Popup', () => {
   it('joins the call in a new tab and closes the window', async () => {
     await open(synced([standup]));
 
-    fireEvent.click(await screen.findByRole('button', { name: /Войти · Телемост/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Войти · Телемост' }));
     expect(fakeBrowser.tabs.create).toHaveBeenCalledWith({ url: 'https://telemost.yandex.ru/j/1' });
     expect(window.close).toHaveBeenCalled();
   });

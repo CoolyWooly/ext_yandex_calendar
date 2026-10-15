@@ -139,15 +139,6 @@ export function CheckIcon({ size }: { size?: number }) {
   );
 }
 
-export function InviteIcon({ size }: { size?: number }) {
-  return (
-    <Icon size={size}>
-      <rect x="3" y="5" width="18" height="14" rx="3" />
-      <path d="m4 7 8 6 8-6" />
-    </Icon>
-  );
-}
-
 export function AlertIcon({ size }: { size?: number }) {
   return (
     <Icon size={size}>

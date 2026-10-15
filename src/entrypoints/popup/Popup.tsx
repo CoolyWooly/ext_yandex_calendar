@@ -2,8 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { browser } from 'wxt/browser';
 import { buildHighlights, type Highlights } from '../../calendar/highlights';
 import { CALENDAR_URL } from '../../calendar/links';
-import { buildSchedule, isOnMyAgenda } from '../../calendar/schedule';
-import type { Meeting } from '../../calendar/types';
+import { buildSchedule } from '../../calendar/schedule';
 import {
   type Account,
   accountItem,
@@ -23,7 +22,6 @@ import {
   CalendarIcon,
   ExternalIcon,
   FreeTimeIllustration,
-  InviteIcon,
   LogoMark,
   RefreshIcon,
   SettingsIcon,
@@ -167,45 +165,13 @@ function Content(props: {
   onOpenOptions: () => void;
 }) {
   const { account, prefs, snapshot, highlights, now, onOpen, onOpenOptions } = props;
-  const schedule = buildSchedule([...snapshot.meetings, ...highlights.ghosts], now, {
-    hideDeclined: prefs.hideDeclined,
-  });
+  const days = buildSchedule([...snapshot.meetings, ...highlights.ghosts], now, { hideDeclined: prefs.hideDeclined });
   const colors = new Map(account.calendars.map((calendar) => [calendar.href, calendar.color ?? 'var(--accent)']));
   const colorOf = (href: string) => colors.get(href) ?? 'var(--accent)';
-  // Текущая или ближайшая встреча — крупной карточкой наверху, в своём разделе её уже нет.
-  const focus = [...schedule.now, ...schedule.days.flatMap((day) => day.meetings)].find(
-    (meeting) => !meeting.allDay && isOnMyAgenda(meeting),
-  );
-  const happeningNow = schedule.now.filter((meeting) => meeting !== focus);
-  const days = schedule.days
-    .map((day) => ({ ...day, meetings: day.meetings.filter((meeting) => meeting !== focus) }))
-    .filter((day) => day.meetings.length > 0);
-  const isEmpty = !focus && happeningNow.length === 0 && days.length === 0;
-  const item = (meeting: Meeting, featured = false) => (
-    <MeetingItem
-      key={meeting.key}
-      meeting={meeting}
-      highlight={highlights.byKey.get(meeting.key)}
-      color={colorOf(meeting.calendarHref)}
-      featured={featured}
-      now={now}
-      onOpen={onOpen}
-    />
-  );
 
   return (
     <>
       {snapshot.error && <ErrorBanner snapshot={snapshot} now={now} onOpenOptions={onOpenOptions} />}
-
-      {schedule.needsResponse > 0 && (
-        <div class="banner warning">
-          <InviteIcon />
-          <span>
-            {schedule.needsResponse}{' '}
-            {plural(schedule.needsResponse, ['приглашение ждёт', 'приглашения ждут', 'приглашений ждут'])} ответа
-          </span>
-        </div>
-      )}
 
       <main class="list">
         {prefs.selectedCalendars?.length === 0 ? (
@@ -215,7 +181,7 @@ function Content(props: {
               Выбрать в настройках
             </button>
           </div>
-        ) : isEmpty ? (
+        ) : days.length === 0 ? (
           snapshot.syncedAt ? (
             <div class="empty">
               <FreeTimeIllustration />
@@ -228,21 +194,21 @@ function Content(props: {
             </div>
           )
         ) : (
-          <>
-            {focus && <div class="focus">{item(focus, true)}</div>}
-            {happeningNow.length > 0 && (
-              <section>
-                <SectionTitle label="Сейчас" count={happeningNow.length} live />
-                {happeningNow.map((meeting) => item(meeting))}
-              </section>
-            )}
-            {days.map((day) => (
-              <section key={day.key}>
-                <SectionTitle label={day.label} count={day.meetings.length} />
-                {day.meetings.map((meeting) => item(meeting))}
-              </section>
-            ))}
-          </>
+          days.map((day) => (
+            <section key={day.key}>
+              <SectionTitle title={day.title} date={day.date} count={day.meetings.length} />
+              {day.meetings.map((meeting) => (
+                <MeetingItem
+                  key={meeting.key}
+                  meeting={meeting}
+                  highlight={highlights.byKey.get(meeting.key)}
+                  color={colorOf(meeting.calendarHref)}
+                  now={now}
+                  onOpen={onOpen}
+                />
+              ))}
+            </section>
+          ))
         )}
       </main>
     </>
@@ -275,14 +241,12 @@ function ErrorBanner({ snapshot, now, onOpenOptions }: { snapshot: Snapshot; now
   );
 }
 
-/** «Сегодня · четверг, 1 октября» → крупно «Сегодня», мельче дата, справа число встреч. */
-function SectionTitle({ label, count, live = false }: { label: string; count: number; live?: boolean }) {
-  const [head, date] = label.split(' · ');
+/** Крупно «Сегодня», «Завтра» или день недели, мельче дата, справа число встреч. */
+function SectionTitle({ title, date, count }: { title: string; date: string; count: number }) {
   return (
-    <h2 class={`section-title${live ? ' now' : ''}`}>
-      {live && <span class="live-dot" aria-hidden="true" />}
-      <span class="section-head">{head}</span>
-      {date && <span class="section-date">{date}</span>}
+    <h2 class="section-title">
+      <span class="section-head">{title}</span>
+      <span class="section-date">{date}</span>
       <span class="section-count">
         {count} {plural(count, ['встреча', 'встречи', 'встреч'])}
       </span>

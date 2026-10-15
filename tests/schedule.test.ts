@@ -11,46 +11,26 @@ describe('buildSchedule', () => {
   const tomorrow = meeting({ uid: 'tomorrow', start: local(2026, 10, 2, 11, 0), end: local(2026, 10, 2, 12, 0) });
   const monday = meeting({ uid: 'monday', start: local(2026, 10, 5, 8, 30), end: local(2026, 10, 5, 9, 0) });
 
-  it('drops finished meetings and splits the rest into "now" and days', () => {
-    const schedule = buildSchedule([monday, later, ended, tomorrow, ongoing], NOW, { hideDeclined: true });
+  it('drops finished meetings and groups the rest by day, keeping ongoing ones under today', () => {
+    const days = buildSchedule([monday, later, ended, tomorrow, ongoing], NOW, { hideDeclined: true });
 
-    expect(schedule.now.map((m) => m.uid)).toEqual(['ongoing']);
-    expect(schedule.days.map((day) => [day.label, day.meetings.map((m) => m.uid)])).toEqual([
-      ['Сегодня · четверг, 1 октября', ['later']],
-      ['Завтра · пятница, 2 октября', ['tomorrow']],
-      ['Понедельник, 5 октября', ['monday']],
+    expect(days.map((day) => [day.title, day.date, day.meetings.map((m) => m.uid)])).toEqual([
+      ['Сегодня', '1 октября', ['ongoing', 'later']],
+      ['Завтра', '2 октября', ['tomorrow']],
+      ['Понедельник', '5 октября', ['monday']],
     ]);
   });
 
   it('hides declined meetings only when asked to', () => {
     const declined = meeting({ ...later, uid: 'declined', myStatus: 'declined' });
-    expect(buildSchedule([declined], NOW, { hideDeclined: true }).days).toEqual([]);
-    expect(buildSchedule([declined], NOW, { hideDeclined: false }).days).toHaveLength(1);
+    expect(buildSchedule([declined], NOW, { hideDeclined: true })).toEqual([]);
+    expect(buildSchedule([declined], NOW, { hideDeclined: false })).toHaveLength(1);
   });
 
   it('puts all-day events first and shows a multi-day event once, starting today', () => {
     const vacation = meeting({ uid: 'vacation', allDay: true, start: local(2026, 9, 30), end: local(2026, 10, 3) });
-    const schedule = buildSchedule([later, vacation], NOW, { hideDeclined: true });
+    const days = buildSchedule([later, vacation, ongoing], NOW, { hideDeclined: true });
 
-    expect(schedule.now).toEqual([]);
-    expect(schedule.days.map((day) => day.meetings.map((m) => m.uid))).toEqual([['vacation', 'later']]);
-  });
-
-  it('counts each unanswered series once and ignores cancelled invitations', () => {
-    const invite = (uid: string, day: number, cancelled = false) =>
-      meeting({
-        uid,
-        key: `${uid}|${day}`,
-        myStatus: 'needs-action',
-        cancelled,
-        start: local(2026, 10, day, 12),
-        end: local(2026, 10, day, 13),
-      });
-    const schedule = buildSchedule(
-      [invite('standup', 1), invite('standup', 5), invite('review', 2), invite('retro', 3, true)],
-      NOW,
-      { hideDeclined: true },
-    );
-    expect(schedule.needsResponse).toBe(2);
+    expect(days.map((day) => day.meetings.map((m) => m.uid))).toEqual([['vacation', 'ongoing', 'later']]);
   });
 });

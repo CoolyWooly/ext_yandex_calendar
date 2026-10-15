@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeTimeColumn, formatDay } from '../src/ui/format';
+import { describeTimeColumn } from '../src/ui/format';
 import { local, meeting } from './helpers';
 
 describe('describeTimeColumn', () => {
@@ -26,18 +26,5 @@ describe('describeTimeColumn', () => {
   it('встреча до полуночи остаётся в своём дне', () => {
     const item = meeting({ start: local(2026, 10, 1, 23), end: local(2026, 10, 2) });
     expect(describeTimeColumn(item).until).toBeNull();
-  });
-});
-
-describe('formatDay', () => {
-  const now = local(2026, 10, 1, 18);
-
-  it('сегодня и завтра — словами', () => {
-    expect(formatDay(local(2026, 10, 1, 9), now)).toBe('Сегодня');
-    expect(formatDay(local(2026, 10, 2, 0, 30), now)).toBe('Завтра');
-  });
-
-  it('дальше — день недели и дата', () => {
-    expect(formatDay(local(2026, 10, 5, 10), now)).toBe('Пн, 5 окт.');
   });
 });

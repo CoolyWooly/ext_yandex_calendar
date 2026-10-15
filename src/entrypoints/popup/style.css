@@ -111,10 +111,6 @@ body {
   padding-bottom: 8px;
 }
 
-.focus {
-  padding: 10px 10px 2px;
-}
-
 .section-title {
   position: sticky;
   top: 0;
@@ -129,6 +125,10 @@ body {
   font-weight: 700;
 }
 
+.section-head {
+  font-size: 14px;
+}
+
 .section-date {
   color: var(--muted);
   font-weight: 500;
@@ -139,11 +139,6 @@ body {
   color: var(--muted);
   font-size: 12px;
   font-weight: 500;
-}
-
-.section-title.now {
-  align-items: center;
-  color: var(--danger);
 }
 
 .live-dot {
@@ -165,11 +160,12 @@ body {
   }
 }
 
-/* Обычная карточка: цвет календаря, колонка времени, описание. */
+/* Карточка: цвет календаря, колонка времени, описание, справа — вход в созвон. */
 
 .meeting {
   position: relative;
   display: flex;
+  align-items: center;
   gap: 12px;
   margin: 0 10px 8px;
   padding: 11px 12px 11px 16px;
@@ -201,6 +197,7 @@ body {
   display: flex;
   flex: none;
   flex-direction: column;
+  align-self: flex-start;
   width: 42px;
   padding-top: 1px;
   font-variant-numeric: tabular-nums;
@@ -227,6 +224,10 @@ body {
   color: var(--soon);
 }
 
+.meeting.live .when-start {
+  color: var(--danger);
+}
+
 .meeting-body {
   flex: 1;
   min-width: 0;
@@ -244,6 +245,24 @@ body {
   font-size: 12px;
 }
 
+.meta-soon {
+  color: var(--soon);
+  font-weight: 600;
+}
+
+.meta-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.meta-live .live-dot {
+  width: 6px;
+  height: 6px;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -251,12 +270,40 @@ body {
   margin-bottom: 4px;
 }
 
-.button.join {
-  height: 28px;
-  margin-top: 8px;
-  padding: 0 10px;
-  border-radius: 8px;
-  font-size: 12px;
+/* Вход в созвон. Залит, когда своя встреча идёт или начнётся в ближайшие 15 минут. */
+
+.join-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--accent);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s,
+    filter 0.15s;
+}
+
+.join-icon:hover {
+  border-color: transparent;
+  background: var(--accent-soft);
+}
+
+.join-icon.primary {
+  border-color: transparent;
+  background: var(--brand-gradient);
+  box-shadow: var(--brand-shadow);
+  color: #ffffff;
+}
+
+.join-icon.primary:hover {
+  filter: brightness(1.08);
 }
 
 .meeting.cancelled .meeting-title,
@@ -273,129 +320,6 @@ body {
 
 .meeting.declined {
   opacity: 0.6;
-}
-
-/* Главная карточка: текущая или ближайшая встреча. */
-
-.meeting.featured {
-  display: block;
-  margin: 0;
-  padding: 14px 16px 16px;
-  border: none;
-  background: var(--brand-gradient);
-  box-shadow: var(--brand-shadow);
-  color: #ffffff;
-}
-
-.meeting.featured:hover {
-  filter: brightness(1.04);
-}
-
-.meeting.featured.highlighted {
-  box-shadow:
-    var(--brand-shadow),
-    0 0 0 3px var(--accent-soft);
-}
-
-.featured-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.featured-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  opacity: 0.9;
-}
-
-.meeting.live .live-dot {
-  color: #6ee7b7;
-}
-
-.countdown {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.meeting.featured.soon .countdown {
-  background: #ffffff;
-  color: #d9480f;
-}
-
-.featured-title {
-  margin-top: 8px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-
-.featured-time {
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.meeting.featured .meeting-meta {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.meeting.featured .chips {
-  margin: 8px 0 0;
-}
-
-.meeting.featured .chip {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-}
-
-.meeting.featured .chip.warning {
-  background: #ffffff;
-  color: #d9480f;
-}
-
-.progress {
-  height: 4px;
-  margin-top: 12px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: #ffffff;
-}
-
-.meeting.featured .button.join {
-  width: 100%;
-  height: 38px;
-  margin-top: 14px;
-  border-radius: 10px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(23, 18, 80, 0.2);
-  color: #4338ca;
-  font-size: 14px;
-}
-
-.meeting.featured .button.join:hover:not(:disabled) {
-  background: #ffffff;
-  filter: none;
-  color: #312e81;
 }
 
 /* Пустые состояния и приветствие. */

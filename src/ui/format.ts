@@ -59,15 +59,6 @@ export function formatWhen(start: number, now: number): string {
   return `${weekdayFormat.format(start)}, ${shortDayFormat.format(start)} в ${formatTime(start)}`;
 }
 
-/** День относительно `now`: «Сегодня», «Завтра», «Пт, 9 окт.». */
-export function formatDay(timestamp: number, now: number): string {
-  if (sameDay(timestamp, now)) return 'Сегодня';
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (sameDay(timestamp, tomorrow.getTime())) return 'Завтра';
-  return capitalize(`${weekdayFormat.format(timestamp)}, ${shortDayFormat.format(timestamp)}`);
-}
-
 /** Прежнее время перенесённой встречи: «08:30», если день тот же, иначе «пн, 5 окт., 08:30». */
 export function formatPreviousTime(previous: number, current: number): string {
   if (sameDay(previous, current)) return formatTime(previous);
