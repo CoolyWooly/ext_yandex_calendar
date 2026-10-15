@@ -1,7 +1,7 @@
 # Статус проекта
 
 **Проект:** Встречи для Яндекс Календаря — расширение Chrome (Manifest V3)
-**Фаза:** все 4 замечания ревью закрыты, Verification Complete; не выпущено и не запушено
+**Фаза:** все 4 замечания ревью закрыты, Verification Complete; запушено в `master` 2026-10-15 (`aecfde4..47b6b3d`), не выпущено
 **Обновлено:** 2026-10-15
 **Версия:** 1.1.0 (тег `v1.1.0`), ветка `master`
 
@@ -18,7 +18,7 @@
 | `auth-retry-pause` | Пауза после неверного пароля для всех автоматических синхронизаций | Verification Complete — [ADR-001](adrs/001-auth-retry-pause.md), [QA](reviews/2026-10-15-qa-report.md), [Security](reviews/2026-10-15-security-review.md); в CHANGELOG `[Unreleased]` |
 | `inbox-single-writer` | Один писатель списка непросмотренных изменений — фон | Verification Complete — [ADR-002](adrs/002-inbox-single-writer.md); в CHANGELOG `[Unreleased]` |
 | `occurrence-limit` | Предел перебора повторений серии 100 000 + предупреждение | Verification Complete; в CHANGELOG `[Unreleased]` |
-| `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); CI на GitHub ещё не запускался |
+| `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); первый прогон CI на GitHub: [38711158754](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754), результат не проверен |
 | `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена |
 
 ## Решено
@@ -27,6 +27,7 @@
 - 2026-10-15: inbox пишет только фон; окно забирает изменения сообщением `take-inbox` (ADR-002).
 - 2026-10-15: предел перебора повторений — 100 000, при достижении — предупреждение в консоли.
 - 2026-10-15: линтер и форматтер — Biome; тесты UI — Testing Library + happy-dom; CI на Node 22 и 24; Dependabot (ADR-003).
+- 2026-10-15: `.10x/` хранится в публичном репозитории; 18 коммитов отправлены в `origin/master`.
 
 ## Замечания ревью
 | # | Замечание | Статус |
@@ -37,7 +38,7 @@
 | 4 | Нет тестов UI, линтера, Dependabot | ✅ исправлено (`quality-tooling`) |
 
 ## Открытые вопросы к пользователю
-1. Хранить ли `.10x/` в публичном репозитории или добавить в `.gitignore`?
+Нет.
 
 ## Блокеры
 Нет.
