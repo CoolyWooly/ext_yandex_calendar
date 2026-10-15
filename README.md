@@ -146,12 +146,13 @@ npm run build
 ```bash
 npm test              # тесты (Vitest)
 npm run typecheck     # проверка типов
+npm run lint          # линтер и форматирование (Biome)
 npm run dev           # сборка с пересборкой в .output/chrome-mv3-dev
 npm run zip           # архив для Chrome Web Store в .output/
 npm run store:assets  # иконки и картинки для магазина (нужен Google Chrome)
 ```
 
-Стек: [WXT](https://wxt.dev), TypeScript, [Preact](https://preactjs.com), [ical.js](https://github.com/kewisch/ical.js), [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser), Vitest.
+Стек: [WXT](https://wxt.dev), TypeScript, [Preact](https://preactjs.com), [ical.js](https://github.com/kewisch/ical.js), [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser), Vitest, [Biome](https://biomejs.dev).
 
 <details>
 <summary><b>Как устроен проект</b></summary>

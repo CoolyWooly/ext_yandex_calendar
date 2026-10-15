@@ -1,0 +1,5 @@
+# Массовое переформатирование — git blame его пропускает (GitHub учитывает файл сам;
+# локально: git config blame.ignoreRevsFile .git-blame-ignore-revs).
+
+# Форматирование Biome
+577932da4ec40aa6a66b4d3df66fb4dced4d7439

@@ -15,13 +15,14 @@ npm install
 npm run dev         # сборка с пересборкой в .output/chrome-mv3-dev
 npm test            # тесты (Vitest)
 npm run typecheck   # проверка типов
+npm run lint        # линтер и форматирование (Biome); npm run format — исправить
 ```
 
 Расширение из `.output/chrome-mv3-dev` загружается в `chrome://extensions` → «Режим разработчика» → «Загрузить распакованное».
 
 ## Перед пул-реквестом
 
-- `npm test` и `npm run typecheck` проходят.
+- `npm test`, `npm run typecheck` и `npm run lint` проходят (`npm run format` поправит форматирование).
 - Новое поведение покрыто тестами в `tests/`.
 - Код похож на окружающий: TypeScript, Preact, комментарии и тексты интерфейса — на русском.
 - Ответы сервера для тестов (`tests/fixtures`) — только обезличенные: настоящие имена, адреса, ссылки и названия компаний замените.
