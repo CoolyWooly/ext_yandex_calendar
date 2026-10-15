@@ -1,7 +1,7 @@
 # Статус проекта
 
 **Проект:** Встречи для Яндекс Календаря — расширение Chrome (Manifest V3)
-**Фаза:** `meeting-list-redesign` — Verification Complete, закоммичено локально (не запушено); замечания ревью запушены (`aecfde4..47b6b3d`); ничего не выпущено
+**Фаза:** `meeting-list-redesign` — Verification Complete, запушено в `master` 2026-10-15 (`47b6b3d..f40218a`); ничего не выпущено
 **Обновлено:** 2026-10-15
 **Версия:** 1.1.0 (тег `v1.1.0`), ветка `master`
 
@@ -18,8 +18,8 @@
 | `auth-retry-pause` | Пауза после неверного пароля для всех автоматических синхронизаций | Verification Complete — [ADR-001](adrs/001-auth-retry-pause.md), [QA](reviews/2026-10-15-qa-report.md), [Security](reviews/2026-10-15-security-review.md); в CHANGELOG `[Unreleased]` |
 | `inbox-single-writer` | Один писатель списка непросмотренных изменений — фон | Verification Complete — [ADR-002](adrs/002-inbox-single-writer.md); в CHANGELOG `[Unreleased]` |
 | `occurrence-limit` | Предел перебора повторений серии 100 000 + предупреждение | Verification Complete; в CHANGELOG `[Unreleased]` |
-| `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); первый прогон CI на GitHub: [38711158754](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754), результат не проверен |
-| `meeting-list-redesign` | Список встреч по дням, без карточки «Следующая встреча» и плашки приглашений, вход в созвон иконкой | Verification Complete — [спека](specs/2026-10-15-meeting-list-redesign-design.md), [ADR-004](adrs/004-meeting-list-by-days.md), QA и Security в `reviews/`; в CHANGELOG `[Unreleased]`, картинки магазина пересняты; не запушено |
+| `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); первый прогон CI на GitHub [38711158754](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754) — зелёный (check 22, check 24, package) |
+| `meeting-list-redesign` | Список встреч по дням, без карточки «Следующая встреча» и плашки приглашений, вход в созвон иконкой | Verification Complete — [спека](specs/2026-10-15-meeting-list-redesign-design.md), [ADR-004](adrs/004-meeting-list-by-days.md), QA и Security в `reviews/`; в CHANGELOG `[Unreleased]`, картинки магазина пересняты; запушено, CI [38714808439](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38714808439) не проверен |
 | `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена |
 
 ## Решено
@@ -40,7 +40,7 @@
 | 4 | Нет тестов UI, линтера, Dependabot | ✅ исправлено (`quality-tooling`) |
 
 ## Открытые вопросы к пользователю
-Нет.
+- Dependabot открыл 5 PR (#1–#5), CI в них зелёный: `actions/checkout` 5→7, `actions/setup-node` 5→7, `actions/upload-artifact` 4→7, `happy-dom` 20→21, `preact` 10→11. Мажорные версии — разбирать по одному; `preact` 11 затрагивает всё UI.
 
 ## Блокеры
 Нет.
