@@ -9,7 +9,14 @@ const NOW = local(2026, 10, 1, 7, 0);
 const WEEK = { start: local(2026, 10, 1), end: local(2026, 10, 8) };
 
 const m = (uid: string, day: number, extra: Partial<Meeting> = {}) =>
-  meeting({ uid, key: `${uid}|${day}`, title: uid, start: local(2026, 10, day, 10), end: local(2026, 10, day, 11), ...extra });
+  meeting({
+    uid,
+    key: `${uid}|${day}`,
+    title: uid,
+    start: local(2026, 10, day, 10),
+    end: local(2026, 10, day, 11),
+    ...extra,
+  });
 
 const snapshot = (meetings: Meeting[], syncedAt: number, extra: Partial<Snapshot> = {}): Snapshot => ({
   ...EMPTY_SNAPSHOT,
@@ -107,13 +114,22 @@ describe('unseenCount', () => {
       at: NOW,
       instances: meetings.map((item) => ({ meeting: item, previous: null })),
     });
-    const inbox = [entry('s', m('s', 2), m('s', 5)), entry('s', m('s', 6)), entry('b', m('b', 3)), entry('past', m('past', 1, { end: NOW - 1 }))];
+    const inbox = [
+      entry('s', m('s', 2), m('s', 5)),
+      entry('s', m('s', 6)),
+      entry('b', m('b', 3)),
+      entry('past', m('past', 1, { end: NOW - 1 })),
+    ];
     expect(unseenCount(inbox, NOW)).toBe(2);
   });
 });
 
 describe('takeDueDigest', () => {
-  const pending = [m('invite', 2, { myStatus: 'needs-action' }), m('invite', 5, { myStatus: 'needs-action' }), m('ok', 3)];
+  const pending = [
+    m('invite', 2, { myStatus: 'needs-action' }),
+    m('invite', 5, { myStatus: 'needs-action' }),
+    m('ok', 3),
+  ];
 
   beforeEach(async () => {
     fakeBrowser.reset();

@@ -78,7 +78,9 @@ describe('diffMeetings', () => {
   it('reports a moved meeting together with its previous version', () => {
     const before = m('a', 2, 10);
     const after = m('a', 2, 12);
-    expect(diff([before], [after])).toEqual([{ kind: 'changed', uid: 'a', instances: [{ meeting: after, previous: before }] }]);
+    expect(diff([before], [after])).toEqual([
+      { kind: 'changed', uid: 'a', instances: [{ meeting: after, previous: before }] },
+    ]);
   });
 
   it.each([

@@ -43,7 +43,12 @@ export function reminderTimes(meetings: Meeting[], offsets: number[], now: numbe
  * несколько порогов (встречу создали за 5 минут до начала, компьютер спал), показываем одно
  * и закрываем им все пропущенные.
  */
-export function dueReminders(meetings: Meeting[], offsets: number[], fired: Record<string, number>, now: number): DueReminder[] {
+export function dueReminders(
+  meetings: Meeting[],
+  offsets: number[],
+  fired: Record<string, number>,
+  now: number,
+): DueReminder[] {
   const due: DueReminder[] = [];
   for (const meeting of meetings.filter(wantsReminder)) {
     if (now >= meeting.start + LATE_GRACE_MS) continue;
@@ -58,7 +63,10 @@ export function dueReminders(meetings: Meeting[], offsets: number[], fired: Reco
 /** Ставит будильники на моменты напоминаний и снимает лишние. */
 export async function scheduleReminderAlarms(snapshot: Snapshot, preferences: Preferences, now: number): Promise<void> {
   const wanted = preferences.notify.reminders
-    ? reminderTimes(snapshot.meetings, preferences.reminderMinutes, now).map((at) => ({ name: `${ALARM_PREFIX}${at}`, at }))
+    ? reminderTimes(snapshot.meetings, preferences.reminderMinutes, now).map((at) => ({
+        name: `${ALARM_PREFIX}${at}`,
+        at,
+      }))
     : [];
   const wantedNames = new Set(wanted.map(({ name }) => name));
   const existing = (await browser.alarms.getAll()).filter((alarm) => isReminderAlarm(alarm.name));
@@ -73,7 +81,11 @@ export async function scheduleReminderAlarms(snapshot: Snapshot, preferences: Pr
 }
 
 /** Напоминания, которые пора показать; сразу помечает их показанными. */
-export async function takeDueReminders(snapshot: Snapshot, preferences: Preferences, now: number): Promise<DueReminder[]> {
+export async function takeDueReminders(
+  snapshot: Snapshot,
+  preferences: Preferences,
+  now: number,
+): Promise<DueReminder[]> {
   if (!preferences.notify.reminders) return [];
   const fired = await firedItem.getValue();
   const due = dueReminders(snapshot.meetings, preferences.reminderMinutes, fired, now);

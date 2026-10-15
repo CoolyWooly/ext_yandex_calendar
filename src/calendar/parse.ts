@@ -50,10 +50,16 @@ export function parseCalendarObject(ics: string, ctx: ParseContext): Meeting[] {
 
     // Перенесённые экземпляры берём из их собственных VEVENT ниже, здесь пропускаем.
     const overridden = new Set(
-      exceptions.filter((exception) => exception.uid === event.uid).map((exception) => exception.recurrenceId.toUnixTime()),
+      exceptions
+        .filter((exception) => exception.uid === event.uid)
+        .map((exception) => exception.recurrenceId.toUnixTime()),
     );
     const iterator = event.iterator();
-    for (let count = 0, next = iterator.next(); next && toMillis(next) < ctx.range.end; next = iterator.next(), count++) {
+    for (
+      let count = 0, next = iterator.next();
+      next && toMillis(next) < ctx.range.end;
+      next = iterator.next(), count++
+    ) {
       if (count === MAX_OCCURRENCES) {
         // Не молча: иначе встречи серии просто пропадут из списка.
         console.warn(`Серия ${event.uid}: больше ${MAX_OCCURRENCES} повторений, дальше не показываем`);
@@ -157,7 +163,10 @@ function toMillis(time: ICAL.Time): number {
 }
 
 function emailOf(value: unknown): string {
-  return stringValue(value).replace(/^mailto:/i, '').trim().toLowerCase();
+  return stringValue(value)
+    .replace(/^mailto:/i, '')
+    .trim()
+    .toLowerCase();
 }
 
 function stringValue(value: unknown): string {

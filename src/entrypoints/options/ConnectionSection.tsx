@@ -1,11 +1,5 @@
 import { useState } from 'preact/hooks';
-import {
-  CalDavClient,
-  CalDavError,
-  type CalDavErrorKind,
-  type Credentials,
-  normalizeLogin,
-} from '../../caldav/client';
+import { CalDavClient, CalDavError, type CalDavErrorKind, type Credentials, normalizeLogin } from '../../caldav/client';
 import type { Account } from '../../storage/store';
 import { ExternalIcon, LinkIcon } from '../../ui/icons';
 
@@ -86,8 +80,8 @@ export function ConnectionSection({ account, authErrorAt, onConnected, onDisconn
 
       {account && authErrorAt !== null && check.status !== 'checking' && (
         <p class="alert error" role="alert">
-          С {formatDateTime(authErrorAt)} Яндекс не принимает сохранённый пароль приложения — встречи не
-          обновляются. Скорее всего, пароль отозвали. Создайте новый пароль приложения и введите его ниже.
+          С {formatDateTime(authErrorAt)} Яндекс не принимает сохранённый пароль приложения — встречи не обновляются.
+          Скорее всего, пароль отозвали. Создайте новый пароль приложения и введите его ниже.
         </p>
       )}
 
@@ -125,8 +119,8 @@ export function ConnectionSection({ account, authErrorAt, onConnected, onDisconn
             <div class="step-body">
               <div class="step-title">Создайте пароль приложения</div>
               <p class="field-hint">
-                Яндекс ID → «Безопасность» → «Пароли приложений» → «Календарь». Пароль даёт доступ только к
-                календарю, его можно отозвать в любой момент.
+                Яндекс ID → «Безопасность» → «Пароли приложений» → «Календарь». Пароль даёт доступ только к календарю,
+                его можно отозвать в любой момент.
               </p>
               <a class="button" href={APP_PASSWORDS_URL} target="_blank" rel="noreferrer">
                 Открыть Яндекс ID

@@ -107,7 +107,10 @@ describe('describeChange', () => {
 describe('describeChanges', () => {
   const invite = change('new', [{ ...base, uid: 'invite', myStatus: 'needs-action' }, null]);
   const plain = change('new', [{ ...base, uid: 'plain' }, null]);
-  const cancelled = change('cancelled', [{ ...base, uid: 'gone', cancelled: true }, { ...base, uid: 'gone' }]);
+  const cancelled = change('cancelled', [
+    { ...base, uid: 'gone', cancelled: true },
+    { ...base, uid: 'gone' },
+  ]);
 
   it('respects the notification settings', () => {
     const onlyInvites = { ...DEFAULT_PREFERENCES.notify, newMeetings: false, changes: false };
@@ -117,7 +120,10 @@ describe('describeChanges', () => {
   });
 
   it('collapses more than three changes into one notification', () => {
-    const moved = change('changed', [{ ...base, uid: 'moved', start: base.start + HOUR }, { ...base, uid: 'moved' }]);
+    const moved = change('changed', [
+      { ...base, uid: 'moved', start: base.start + HOUR },
+      { ...base, uid: 'moved' },
+    ]);
     const [summary, ...rest] = describeChanges([invite, plain, cancelled, moved], DEFAULT_PREFERENCES.notify, NOW);
     expect(rest).toEqual([]);
     expect(summary).toMatchObject({
@@ -181,7 +187,10 @@ describe('notification clicks and cleanup', () => {
   const call = { ...base, key: 'review|1', start: NOW + 10 * 60_000, end: NOW + 70 * 60_000 };
 
   it('opens the right link for the notification and its buttons', async () => {
-    const spec = describeReminder({ ...call, join: { url: 'https://meet.google.com/x', provider: 'Google Meet' } }, NOW);
+    const spec = describeReminder(
+      { ...call, join: { url: 'https://meet.google.com/x', provider: 'Google Meet' } },
+      NOW,
+    );
     await showNotifications([spec]);
     await handleNotificationClick(spec.id, 1);
 

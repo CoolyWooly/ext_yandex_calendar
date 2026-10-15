@@ -134,15 +134,14 @@ const failed = (kind: 'auth' | 'network', failures: number): Snapshot => ({
 });
 
 describe('nextScheduledAttempt', () => {
-
   it('does not wait when the last sync succeeded', () => {
     expect(nextScheduledAttempt(EMPTY_SNAPSHOT, 2)).toBe(0);
   });
 
   it('doubles the pause after each failure, up to 30 minutes', () => {
-    expect([1, 2, 3, 4, 5, 10].map((failures) => (nextScheduledAttempt(failed('network', failures), 2) - NOW) / MINUTE)).toEqual([
-      2, 4, 8, 16, 30, 30,
-    ]);
+    expect(
+      [1, 2, 3, 4, 5, 10].map((failures) => (nextScheduledAttempt(failed('network', failures), 2) - NOW) / MINUTE),
+    ).toEqual([2, 4, 8, 16, 30, 30]);
   });
 
   it('retries a rejected password only every 30 minutes', () => {

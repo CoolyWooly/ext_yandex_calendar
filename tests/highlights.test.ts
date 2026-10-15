@@ -48,7 +48,10 @@ describe('buildHighlights', () => {
     const gone = m('gone', 10);
     const markedCancelled = m('marked', 11);
     const highlights = buildHighlights(
-      [change('cancelled', { ...gone, cancelled: true }, gone), change('cancelled', { ...markedCancelled, cancelled: true }, markedCancelled)],
+      [
+        change('cancelled', { ...gone, cancelled: true }, gone),
+        change('cancelled', { ...markedCancelled, cancelled: true }, markedCancelled),
+      ],
       [{ ...markedCancelled, cancelled: true }],
     );
     expect(highlights.ghosts).toEqual([{ ...gone, cancelled: true }]);

@@ -58,7 +58,9 @@ export function Popup() {
     );
     // Непросмотренные изменения забирает фон — inbox пишет только он. Окно лишь следит, не появилось ли новое.
     const takeInbox = async () => {
-      const entries: InboxEntry[] = await browser.runtime.sendMessage({ type: 'take-inbox' } satisfies BackgroundMessage);
+      const entries: InboxEntry[] = await browser.runtime.sendMessage({
+        type: 'take-inbox',
+      } satisfies BackgroundMessage);
       if (entries.length > 0) setSeen((earlier) => [...earlier, ...entries]);
     };
     void takeInbox();
@@ -108,7 +110,8 @@ export function Popup() {
           {account && status && <span class="sync-status">{status}</span>}
         </div>
         {account && (
-          <button type="button"
+          <button
+            type="button"
             class={`icon-button${syncing ? ' spinning' : ''}`}
             title="Обновить"
             aria-label="Обновить"

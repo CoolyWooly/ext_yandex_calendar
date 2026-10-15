@@ -105,7 +105,5 @@ export async function takeDueDigest(snapshot: Snapshot, now: number): Promise<Me
 }
 
 function pruneInbox(entries: InboxEntry[], now: number): InboxEntry[] {
-  return entries
-    .filter((entry) => entry.instances.some(({ meeting }) => meeting.end > now))
-    .slice(-MAX_INBOX_ENTRIES);
+  return entries.filter((entry) => entry.instances.some(({ meeting }) => meeting.end > now)).slice(-MAX_INBOX_ENTRIES);
 }

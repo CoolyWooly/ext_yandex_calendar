@@ -1,5 +1,5 @@
-import preact from '@preact/preset-vite';
 import { fileURLToPath } from 'node:url';
+import preact from '@preact/preset-vite';
 import { defineConfig } from 'vite';
 
 const here = (path) => fileURLToPath(new URL(path, import.meta.url));

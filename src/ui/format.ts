@@ -79,7 +79,9 @@ export function formatAgo(timestamp: number, now: number): string {
   const elapsed = now - timestamp;
   if (elapsed < MINUTE) return 'только что';
   if (elapsed < 60 * MINUTE) return `${Math.floor(elapsed / MINUTE)} мин назад`;
-  return sameDay(timestamp, now) ? `в ${formatTime(timestamp)}` : `${shortDayFormat.format(timestamp)} в ${formatTime(timestamp)}`;
+  return sameDay(timestamp, now)
+    ? `в ${formatTime(timestamp)}`
+    : `${shortDayFormat.format(timestamp)} в ${formatTime(timestamp)}`;
 }
 
 /** Русское множественное число: plural(5, ['участник', 'участника', 'участников']). */

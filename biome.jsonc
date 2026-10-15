@@ -12,6 +12,7 @@
       "arrowParentheses": "always"
     }
   },
+  "css": { "formatter": { "quoteStyle": "single" } },
   "linter": {
     "rules": {
       "preset": "recommended",

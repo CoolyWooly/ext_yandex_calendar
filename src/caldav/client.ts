@@ -88,12 +88,7 @@ export class CalDavClient {
       .filter((object) => object.ics.includes('BEGIN:VCALENDAR'));
   }
 
-  private async request(
-    method: string,
-    path: string,
-    body: string,
-    headers: Record<string, string>,
-  ): Promise<string> {
+  private async request(method: string, path: string, body: string, headers: Record<string, string>): Promise<string> {
     let response: Response;
     try {
       response = await this.fetchFn(CALDAV_ORIGIN + path, {
@@ -157,7 +152,10 @@ function calendarQuery(range: { start: number; end: number }): string {
 
 /** `2026-10-01T00:00:00.000Z` → `20261001T000000Z`. */
 function toCalDavTime(timestamp: number): string {
-  return new Date(timestamp).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  return new Date(timestamp)
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
 }
 
 export function normalizeLogin(login: string): string {

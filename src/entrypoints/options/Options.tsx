@@ -8,11 +8,11 @@ import {
   defaultCalendarSelection,
   getPreferences,
   HORIZON_DAYS_OPTIONS,
-  snapshotItem,
   type NotifyPreferences,
-  parseReminderMinutes,
   POLL_MINUTES_OPTIONS,
   type Preferences,
+  parseReminderMinutes,
+  snapshotItem,
   updatePreferences,
 } from '../../storage/store';
 import { BellIcon, CalendarIcon, LockIcon, LogoMark, SlidersIcon } from '../../ui/icons';
@@ -164,8 +164,8 @@ function PrivacySection() {
       <div>
         <h2>Данные остаются у вас</h2>
         <p class="muted">
-          Расширение обращается только к caldav.yandex.ru. Встречи и пароль приложения хранятся в этом браузере
-          и никуда больше не отправляются: своих серверов, аналитики и рекламы нет.
+          Расширение обращается только к caldav.yandex.ru. Встречи и пароль приложения хранятся в этом браузере и никуда
+          больше не отправляются: своих серверов, аналитики и рекламы нет.
         </p>
       </div>
     </section>
@@ -188,8 +188,8 @@ function CalendarsSection(props: {
     <section class="card">
       <CardTitle icon={<CalendarIcon />}>Календари</CardTitle>
       <p class="muted">
-        Встречи из отмеченных календарей попадут в список и уведомления. Календари переговорок лучше не
-        отмечать — иначе будут приходить уведомления о каждой брони.
+        Встречи из отмеченных календарей попадут в список и уведомления. Календари переговорок лучше не отмечать — иначе
+        будут приходить уведомления о каждой брони.
       </p>
 
       {eventCalendars.length === 0 ? (
@@ -288,8 +288,7 @@ function TestNotification() {
       {shown && (
         <p class="field-hint">
           Не появилось или сразу исчезло? В macOS откройте «Системные настройки → Уведомления → Google Chrome»,
-          разрешите уведомления и выберите стиль «Постоянно». Проверьте также, что не включён режим «Не
-          беспокоить».
+          разрешите уведомления и выберите стиль «Постоянно». Проверьте также, что не включён режим «Не беспокоить».
         </p>
       )}
     </div>
@@ -367,11 +366,7 @@ function Toggle(props: {
   );
 }
 
-function ReminderMinutesInput(props: {
-  value: number[];
-  disabled: boolean;
-  onChange: (minutes: number[]) => void;
-}) {
+function ReminderMinutesInput(props: { value: number[]; disabled: boolean; onChange: (minutes: number[]) => void }) {
   const [text, setText] = useState(props.value.join(', '));
   const [invalid, setInvalid] = useState(false);
 

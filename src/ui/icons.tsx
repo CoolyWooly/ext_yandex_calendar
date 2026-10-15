@@ -162,9 +162,20 @@ export function FreeTimeIllustration() {
   return (
     <svg viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" class="illustration">
       <ellipse cx="48" cy="72" rx="34" ry="5" fill="var(--accent-soft)" />
-      <path d="M22 32h44v16a20 20 0 0 1-20 20h-4a20 20 0 0 1-20-20z" fill="var(--surface)" stroke="var(--accent)" stroke-width="3" />
+      <path
+        d="M22 32h44v16a20 20 0 0 1-20 20h-4a20 20 0 0 1-20-20z"
+        fill="var(--surface)"
+        stroke="var(--accent)"
+        stroke-width="3"
+      />
       <path d="M66 38h5a8 8 0 0 1 0 16h-6" fill="none" stroke="var(--accent)" stroke-width="3" />
-      <path d="M36 12c-3 4 3 7 0 12M46 8c-3 5 3 9 0 15M56 12c-3 4 3 7 0 12" fill="none" stroke="var(--border-strong)" stroke-width="3" stroke-linecap="round" />
+      <path
+        d="M36 12c-3 4 3 7 0 12M46 8c-3 5 3 9 0 15M56 12c-3 4 3 7 0 12"
+        fill="none"
+        stroke="var(--border-strong)"
+        stroke-width="3"
+        stroke-linecap="round"
+      />
     </svg>
   );
 }

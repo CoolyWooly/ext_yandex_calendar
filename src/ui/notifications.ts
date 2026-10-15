@@ -128,7 +128,8 @@ export function describeAuthError(optionsUrl: string): NotificationSpec {
   return {
     id: AUTH_ERROR_NOTIFICATION,
     title: '🔑 Яндекс не принимает пароль приложения',
-    message: 'Встречи и напоминания не обновляются. Создайте новый пароль приложения для «Календаря» и введите его в настройках.',
+    message:
+      'Встречи и напоминания не обновляются. Создайте новый пароль приложения для «Календаря» и введите его в настройках.',
     url: optionsUrl,
     buttons: [{ title: 'Открыть настройки', url: optionsUrl }],
     requireInteraction: true,

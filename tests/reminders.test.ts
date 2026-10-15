@@ -18,7 +18,11 @@ const OFFSETS = [10, 1];
 const standup = meeting({ uid: 's', key: 's|1', title: 'Стендап', start: START, end: START + 30 * MINUTE });
 const at = (minutesBeforeStart: number) => START - minutesBeforeStart * MINUTE;
 const snapshot = (meetings: Meeting[]): Snapshot => ({ ...EMPTY_SNAPSHOT, meetings, syncedAt: at(60) });
-const prefs = (patch: Partial<Preferences> = {}): Preferences => ({ ...DEFAULT_PREFERENCES, reminderMinutes: OFFSETS, ...patch });
+const prefs = (patch: Partial<Preferences> = {}): Preferences => ({
+  ...DEFAULT_PREFERENCES,
+  reminderMinutes: OFFSETS,
+  ...patch,
+});
 
 describe('reminderTimes', () => {
   it('lists upcoming reminder moments for the next 24 hours', () => {

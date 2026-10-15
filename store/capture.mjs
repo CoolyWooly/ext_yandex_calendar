@@ -11,7 +11,13 @@ import { createServer } from 'vite';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
-const icon = (src, size, out) => ({ out, url: `?scene=icon&src=${src}&size=${size}`, width: size, height: size, transparent: true });
+const icon = (src, size, out) => ({
+  out,
+  url: `?scene=icon&src=${src}&size=${size}`,
+  width: size,
+  height: size,
+  transparent: true,
+});
 const shot = (scene, out, width = 1280, height = 800) => ({ out, url: `?scene=${scene}`, width, height });
 
 const SHOTS = [
@@ -35,7 +41,14 @@ const base = server.resolvedUrls.local[0];
 const profile = await mkdtemp(join(tmpdir(), 'store-capture-'));
 const chrome = spawn(
   CHROME,
-  ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--hide-scrollbars', '--no-first-run', 'about:blank'],
+  [
+    '--headless=new',
+    '--remote-debugging-port=0',
+    `--user-data-dir=${profile}`,
+    '--hide-scrollbars',
+    '--no-first-run',
+    'about:blank',
+  ],
   { stdio: ['ignore', 'ignore', 'pipe'] },
 );
 
@@ -45,9 +58,15 @@ try {
     const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank' });
     const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
     const send = (method, params) => cdp.send(method, params, sessionId);
-    await send('Emulation.setDeviceMetricsOverride', { width: item.width, height: item.height, deviceScaleFactor: 1, mobile: false });
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: item.width,
+      height: item.height,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] });
-    if (item.transparent) await send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
+    if (item.transparent)
+      await send('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
     await send('Page.navigate', { url: base + item.url });
     await waitFor(send, 'window.__ready === true');
     const { data } = await send('Page.captureScreenshot', {

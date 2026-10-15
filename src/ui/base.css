@@ -23,7 +23,13 @@
   --shadow-sm: 0 1px 2px rgba(21, 26, 45, 0.06);
   --shadow-md: 0 6px 20px rgba(21, 26, 45, 0.08);
   --radius: 16px;
-  font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+  font:
+    14px / 1.45 -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
     sans-serif;
   -webkit-font-smoothing: antialiased;
 }

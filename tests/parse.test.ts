@@ -178,7 +178,12 @@ describe('resolveMyStatus', () => {
     ['my declined answer', 'boss@example.com', [{ email: me, partstat: 'declined' }], 'declined'],
     ['my tentative answer', 'boss@example.com', [{ email: me, partstat: 'TENTATIVE' }], 'tentative'],
     ['not answered personally', 'boss@example.com', [{ email: me, partstat: 'NEEDS-ACTION' }], 'needs-action'],
-    ['invited via a mailing list', 'boss@example.com', [{ email: 'team@example.com', partstat: 'NEEDS-ACTION' }], 'needs-action'],
+    [
+      'invited via a mailing list',
+      'boss@example.com',
+      [{ email: 'team@example.com', partstat: 'NEEDS-ACTION' }],
+      'needs-action',
+    ],
     ['personal event', null, [], 'none'],
   ] as const)('%s', (_name, organizer, attendees, expected) => {
     expect(resolveMyStatus(organizer, [...attendees], ' User@Example.com ', true)).toBe(expected);

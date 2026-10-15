@@ -23,7 +23,13 @@ const TEAM = '/calendars/demo%40company.ru/events-2/';
 export const CALENDARS: CalendarInfo[] = [
   { href: MY, name: 'Мои события', ctag: '1', color: '#5b6cff', kind: 'events' },
   { href: TEAM, name: 'Команда продукта', ctag: '1', color: '#12b886', kind: 'events' },
-  { href: '/calendars/demo%40company.ru/events-3/', name: 'Переговорка «Байконур»', ctag: '1', color: '#f59f00', kind: 'events' },
+  {
+    href: '/calendars/demo%40company.ru/events-3/',
+    name: 'Переговорка «Байконур»',
+    ctag: '1',
+    color: '#f59f00',
+    kind: 'events',
+  },
   { href: '/calendars/demo%40company.ru/todo-1/', name: 'Не забыть', ctag: '1', color: null, kind: 'tasks' },
 ];
 

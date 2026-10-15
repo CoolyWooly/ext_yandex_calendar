@@ -49,7 +49,17 @@ function markReady() {
 
 function Check() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
       <path d="m5 12.5 4.5 4.5L19 7.5" />
     </svg>
   );
@@ -87,7 +97,8 @@ function BrowserWithPopup(props: { demo: string; unseen: number; scale?: number 
     <div class="browser">
       <Toolbar badge={badge} />
       <FakePage />
-      <iframe title="Окно встреч"
+      <iframe
+        title="Окно встреч"
         name="popup"
         class="popup-frame"
         src={`popup.html?demo=${props.demo}`}
@@ -107,7 +118,16 @@ function Toolbar({ badge }: { badge?: { text: string; color: string } }) {
       </span>
       <span class="nav">‹ ›</span>
       <span class="address">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+        >
           <rect x="5" y="11" width="14" height="10" rx="2" />
           <path d="M8 11V8a4 4 0 0 1 8 0v3" />
         </svg>
@@ -168,7 +188,11 @@ function MeetingsScene() {
           </>
         }
         text="Ближайшие встречи из Яндекс Календаря прямо в браузере. Не нужно держать открытыми календарь и почту."
-        bullets={['Отсчёт до начала прямо на иконке', 'Вход в видеозвонок одной кнопкой', 'Работает с Яндекс 360 для бизнеса']}
+        bullets={[
+          'Отсчёт до начала прямо на иконке',
+          'Вход в видеозвонок одной кнопкой',
+          'Работает с Яндекс 360 для бизнеса',
+        ]}
       />
       <BrowserWithPopup demo="list" unseen={0} />
     </Shot>
@@ -187,7 +211,11 @@ function ChangesScene() {
           </>
         }
         text="Что изменилось с прошлого раза, отмечено в списке. Красный счётчик на иконке подскажет, что пора заглянуть."
-        bullets={['Метки «новая», «перенесена», «отменена»', 'Приглашения, которые ждут ответа', 'В том числе приглашения через рассылки']}
+        bullets={[
+          'Метки «новая», «перенесена», «отменена»',
+          'Приглашения, которые ждут ответа',
+          'В том числе приглашения через рассылки',
+        ]}
       />
       <BrowserWithPopup demo="changes" unseen={INBOX.length} />
     </Shot>
@@ -265,7 +293,11 @@ function SettingsScene() {
           </>
         }
         text="Нужен только пароль приложения Яндекса: он открывает доступ лишь к календарю и отзывается в один клик."
-        bullets={['Данные хранятся только в вашем браузере', 'Без своих серверов, рекламы и аналитики', 'Исходный код открыт на GitHub']}
+        bullets={[
+          'Данные хранятся только в вашем браузере',
+          'Без своих серверов, рекламы и аналитики',
+          'Исходный код открыт на GitHub',
+        ]}
       />
       <div class="browser wide">
         <Toolbar />
@@ -303,7 +335,8 @@ function Marquee() {
         </h1>
         <p>Список встреч, напоминания и вход в созвон для Яндекс&nbsp;Календаря</p>
       </div>
-      <iframe title="Окно встреч"
+      <iframe
+        title="Окно встреч"
         name="popup"
         class="popup-frame floating"
         src="popup.html?demo=list"
@@ -316,7 +349,15 @@ function Marquee() {
 function IconScene() {
   useEffect(markReady, []);
   const size = Number(params.get('size') ?? 128);
-  return <img class="icon-only" src={params.get('src') === 'small' ? iconSmallUrl : iconUrl} width={size} height={size} alt="" />;
+  return (
+    <img
+      class="icon-only"
+      src={params.get('src') === 'small' ? iconSmallUrl : iconUrl}
+      width={size}
+      height={size}
+      alt=""
+    />
+  );
 }
 
 const SCENES: Record<string, () => preact.JSX.Element> = {

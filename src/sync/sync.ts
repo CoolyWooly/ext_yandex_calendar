@@ -10,8 +10,8 @@ import {
   EMPTY_SNAPSHOT,
   getPreferences,
   type Snapshot,
-  snapshotItem,
   type SyncError,
+  snapshotItem,
 } from '../storage/store';
 
 /** Даже если ctag не менялся, раз в 15 минут перезагружаем встречи — на случай, если сервер его не обновил. */
@@ -132,7 +132,8 @@ export async function syncNow(options: SyncOptions = {}): Promise<SyncResult> {
 
 /** Обновляет список календарей в аккаунте, если он изменился (новый календарь, переименование). */
 async function rememberCalendars(account: Account, calendars: CalendarInfo[]): Promise<void> {
-  const signature = (list: CalendarInfo[]) => list.map((calendar) => `${calendar.href}|${calendar.name}|${calendar.kind}`).join('\n');
+  const signature = (list: CalendarInfo[]) =>
+    list.map((calendar) => `${calendar.href}|${calendar.name}|${calendar.kind}`).join('\n');
   if (signature(account.calendars) !== signature(calendars)) {
     await accountItem.setValue({ ...account, calendars });
   }

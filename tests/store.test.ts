@@ -22,9 +22,7 @@ const calendar = (name: string, kind: CalendarInfo['kind'] = 'events'): Calendar
 
 describe('defaultCalendarSelection', () => {
   it('picks the primary calendar and skips meeting rooms and task lists', () => {
-    expect(defaultCalendarSelection(calendars)).toEqual([
-      '/calendars/user%40example.com/events-36215597/',
-    ]);
+    expect(defaultCalendarSelection(calendars)).toEqual(['/calendars/user%40example.com/events-36215597/']);
   });
 
   it('falls back to the first calendar with events', () => {

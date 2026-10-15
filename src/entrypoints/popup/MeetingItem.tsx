@@ -60,7 +60,8 @@ export function MeetingItem({ meeting, highlight, color, featured = false, now, 
     meeting.attendeeCount > 1 &&
       `${meeting.attendeeCount} ${plural(meeting.attendeeCount, ['участник', 'участника', 'участников'])}`,
   ];
-  const previously = highlight?.previousStart != null && `было ${formatPreviousTime(highlight.previousStart, meeting.start)}`;
+  const previously =
+    highlight?.previousStart != null && `было ${formatPreviousTime(highlight.previousStart, meeting.start)}`;
 
   const classes = [
     'meeting',
@@ -82,7 +83,8 @@ export function MeetingItem({ meeting, highlight, color, featured = false, now, 
   };
 
   const joinButton = meeting.join && !meeting.cancelled && (
-    <button type="button"
+    <button
+      type="button"
       class={`button join${featured || inProgress || soon ? ' primary' : ''}`}
       onClick={(event) => {
         event.stopPropagation();

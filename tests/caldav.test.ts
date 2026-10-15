@@ -63,9 +63,7 @@ describe('CalDavClient', () => {
   }
 
   it('sends PROPFIND to the calendar home with Basic auth and without cookies', async () => {
-    const { client, fetchFn } = clientReturning(
-      new Response(propfindCalendars, { status: 207 }),
-    );
+    const { client, fetchFn } = clientReturning(new Response(propfindCalendars, { status: 207 }));
 
     const calendars = await client.listCalendars();
 
