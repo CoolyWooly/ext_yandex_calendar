@@ -20,3 +20,9 @@
 # Security review — 2026-10-15 — quality-tooling
 
 **Вердикт:** ✅ риск снижен: токен CI по умолчанию только на чтение, Dependabot следит за зависимостями; новые зависимости — только для разработки, в архив не попадают. Подробности — `decisions/security/quality-tooling.md`.
+
+---
+
+# Security review — 2026-10-15 — meeting-list-redesign
+
+**Вердикт:** ✅ уязвимостей не внесено: изменена только разметка окна и чистая функция расписания. Подробности — `decisions/security/meeting-list-redesign.md`.

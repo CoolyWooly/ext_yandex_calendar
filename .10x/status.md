@@ -1,14 +1,14 @@
 # Статус проекта
 
 **Проект:** Встречи для Яндекс Календаря — расширение Chrome (Manifest V3)
-**Фаза:** `meeting-list-redesign` — Planning Complete (дизайн одобрен, ADR-004), идёт реализация; замечания ревью закрыты и запушены (`aecfde4..47b6b3d`), не выпущено
+**Фаза:** `meeting-list-redesign` — Verification Complete, закоммичено локально (не запушено); замечания ревью запушены (`aecfde4..47b6b3d`); ничего не выпущено
 **Обновлено:** 2026-10-15
 **Версия:** 1.1.0 (тег `v1.1.0`), ветка `master`
 
-## Последние проверки (2026-10-15, после quality-tooling; Node 26 и 22.12)
+## Последние проверки (2026-10-15, после meeting-list-redesign; Node 26)
 - `npm run lint` — чисто
 - `npm run typecheck` — без ошибок
-- `npm test` — 16 файлов, 163 теста, все проходят
+- `npm test` — 16 файлов, 162 теста, все проходят
 - `npm run build` — ок
 
 ## Фичи
@@ -19,7 +19,7 @@
 | `inbox-single-writer` | Один писатель списка непросмотренных изменений — фон | Verification Complete — [ADR-002](adrs/002-inbox-single-writer.md); в CHANGELOG `[Unreleased]` |
 | `occurrence-limit` | Предел перебора повторений серии 100 000 + предупреждение | Verification Complete; в CHANGELOG `[Unreleased]` |
 | `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); первый прогон CI на GitHub: [38711158754](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754), результат не проверен |
-| `meeting-list-redesign` | Список встреч по дням, без карточки «Следующая встреча» и плашки приглашений, вход в созвон иконкой | Planning Complete — [спека](specs/2026-10-15-meeting-list-redesign-design.md), [ADR-004](adrs/004-meeting-list-by-days.md), план в `decisions/engineering-manager/meeting-list-redesign.md` |
+| `meeting-list-redesign` | Список встреч по дням, без карточки «Следующая встреча» и плашки приглашений, вход в созвон иконкой | Verification Complete — [спека](specs/2026-10-15-meeting-list-redesign-design.md), [ADR-004](adrs/004-meeting-list-by-days.md), QA и Security в `reviews/`; в CHANGELOG `[Unreleased]`, картинки магазина пересняты; не запушено |
 | `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена |
 
 ## Решено
