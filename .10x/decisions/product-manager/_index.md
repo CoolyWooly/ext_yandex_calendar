@@ -7,3 +7,4 @@
 
 ## Фичи
 - [meetings-extension](meetings-extension.md)
+- [meeting-list-redesign](meeting-list-redesign.md) — список по дням, без карточки и плашки приглашений

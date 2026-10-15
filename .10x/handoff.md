@@ -1,25 +1,21 @@
 # Handoff
 
-**От:** QA + Security · **Кому:** пользователю (пуш и выпуск)
+**От:** Engineering Manager + Senior Engineer · **Кому:** SDE
 **Дата:** 2026-10-15
 
-## Готово и запушено в `master` (2026-10-15), не выпущено
-Все четыре замечания ревью закрыты:
-- `auth-retry-pause` ([ADR-001](adrs/001-auth-retry-pause.md)) — пауза после неверного пароля.
-- `inbox-single-writer` ([ADR-002](adrs/002-inbox-single-writer.md)) — inbox пишет только фон.
-- `occurrence-limit` — предел перебора повторений 100 000 + предупреждение.
-- `quality-tooling` ([ADR-003](adrs/003-quality-tooling.md)) — Biome, тесты UI, CI на Node 22 и 24, Dependabot, токен CI только на чтение.
+## Текущая работа: `meeting-list-redesign`
+Дизайн одобрен пользователем по макету: [спека](specs/2026-10-15-meeting-list-redesign-design.md),
+[ADR-004](adrs/004-meeting-list-by-days.md). План — `decisions/engineering-manager/meeting-list-redesign.md`:
+1. `schedule.ts` → `DaySection[]` с `title`/`date`, идущие встречи в «Сегодня».
+2. `MeetingItem` + `style.css`: одна карточка, `.join-icon`, «скоро»/«идёт» только для `isOnMyAgenda`.
+3. `Popup` без главной карточки, «Сейчас» и плашки приглашений; удалить `formatDay`, `InviteIcon`.
+4. Тесты окна и расписания.
+5. Проверки и вид на `store/render/popup.html`.
+6. README, `store/listing.md`, CHANGELOG, пересъёмка картинок магазина с окном встреч.
 
-Lint чисто, 163/163 теста (Node 26 и 22.12), сборка ок. Первые три — в CHANGELOG `[Unreleased]`.
-
-## Что проверить
-- CI: первый прогон с новым workflow — https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754; оба job `check` (Node 22, 24) и `package` должны быть зелёными; Dependabot появился во вкладке Insights → Dependency graph.
-- GitHub учитывает `.git-blame-ignore-revs` сам; локально — `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
-
-## Выпуск
-`npm version X.Y.Z --no-git-tag-version`, переименовать `[Unreleased]` в CHANGELOG, тег `vX.Y.Z`, пуш —
-CI создаст релиз; затем Chrome Web Store (`decisions/devops/meetings-extension.md`). Ручная проверка в Chrome
-перед выпуском не проводилась.
-
-## Решено
-`.10x/` хранится в публичном репозитории.
+## Не забыть из прошлой работы
+- Первый прогон CI с новым workflow не проверен: https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754
+- Выпуск: `npm version X.Y.Z --no-git-tag-version`, переименовать `[Unreleased]` в CHANGELOG, тег `vX.Y.Z`,
+  пуш — CI создаст релиз; затем Chrome Web Store (`decisions/devops/meetings-extension.md`). Ручная проверка
+  в Chrome перед выпуском не проводилась.
+- `.10x/` хранится в публичном репозитории.

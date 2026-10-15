@@ -16,3 +16,4 @@
 - [meetings-extension](meetings-extension.md)
 - [auth-retry-pause](auth-retry-pause.md) — пауза после неверного пароля, ADR-001
 - [inbox-single-writer](inbox-single-writer.md) — один писатель inbox, ADR-002
+- [meeting-list-redesign](meeting-list-redesign.md) — список по дням, вход иконкой, ADR-004

@@ -1,7 +1,7 @@
 # Статус проекта
 
 **Проект:** Встречи для Яндекс Календаря — расширение Chrome (Manifest V3)
-**Фаза:** все 4 замечания ревью закрыты, Verification Complete; запушено в `master` 2026-10-15 (`aecfde4..47b6b3d`), не выпущено
+**Фаза:** `meeting-list-redesign` — Planning Complete (дизайн одобрен, ADR-004), идёт реализация; замечания ревью закрыты и запушены (`aecfde4..47b6b3d`), не выпущено
 **Обновлено:** 2026-10-15
 **Версия:** 1.1.0 (тег `v1.1.0`), ветка `master`
 
@@ -19,6 +19,7 @@
 | `inbox-single-writer` | Один писатель списка непросмотренных изменений — фон | Verification Complete — [ADR-002](adrs/002-inbox-single-writer.md); в CHANGELOG `[Unreleased]` |
 | `occurrence-limit` | Предел перебора повторений серии 100 000 + предупреждение | Verification Complete; в CHANGELOG `[Unreleased]` |
 | `quality-tooling` | Biome, тесты UI, Node 22 и 24 в CI, Dependabot | Verification Complete — [ADR-003](adrs/003-quality-tooling.md); первый прогон CI на GitHub: [38711158754](https://github.com/CoolyWooly/ext_yandex_calendar/actions/runs/38711158754), результат не проверен |
+| `meeting-list-redesign` | Список встреч по дням, без карточки «Следующая встреча» и плашки приглашений, вход в созвон иконкой | Planning Complete — [спека](specs/2026-10-15-meeting-list-redesign-design.md), [ADR-004](adrs/004-meeting-list-by-days.md), план в `decisions/engineering-manager/meeting-list-redesign.md` |
 | `chrome-web-store` | Публикация в Chrome Web Store | В процессе: первая заявка отклонена (Yellow Argon), карточка исправлена в `aecfde4`; повторная отправка не подтверждена |
 
 ## Решено
@@ -28,6 +29,7 @@
 - 2026-10-15: предел перебора повторений — 100 000, при достижении — предупреждение в консоли.
 - 2026-10-15: линтер и форматтер — Biome; тесты UI — Testing Library + happy-dom; CI на Node 22 и 24; Dependabot (ADR-003).
 - 2026-10-15: `.10x/` хранится в публичном репозитории; 18 коммитов отправлены в `origin/master`.
+- 2026-10-15: список встреч — только по дням; без карточки «Следующая встреча», раздела «Сейчас» и плашки приглашений; вход в созвон иконкой (макет одобрен, ADR-004).
 
 ## Замечания ревью
 | # | Замечание | Статус |
