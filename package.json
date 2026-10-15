@@ -13,6 +13,9 @@
     "url": "https://github.com/CoolyWooly/ext_yandex_calendar/issues"
   },
   "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "dev": "wxt",
     "build": "wxt build",

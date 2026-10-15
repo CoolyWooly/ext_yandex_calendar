@@ -8,7 +8,7 @@
 
 ## Разработка
 
-Нужны Node.js 22 или новее и Google Chrome.
+Нужны Node.js 22.12 или новее и Google Chrome.
 
 ```bash
 npm install

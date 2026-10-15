@@ -72,7 +72,7 @@
 <details>
 <summary><b>Из исходников</b></summary>
 
-Нужен Node.js 22 или новее.
+Нужен Node.js 22.12 или новее.
 
 ```bash
 git clone https://github.com/CoolyWooly/ext_yandex_calendar.git
