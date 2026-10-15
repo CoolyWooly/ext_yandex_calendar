@@ -5,4 +5,4 @@
 - Версия — одна, в `package.json`; тег обязан ей совпадать.
 
 ## Фичи
-- [meetings-extension](meetings-extension.md) — CI, релизы, Chrome Web Store
+- [meetings-extension](meetings-extension.md) — CI, релизы, Chrome Web Store (обновлено по ADR-003)

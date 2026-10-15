@@ -14,3 +14,9 @@
 # Security review — 2026-10-15 — inbox-single-writer
 
 **Вердикт:** ✅ уязвимостей не внесено. Новое сообщение `take-inbox` доступно только страницам расширения и не раскрывает новых данных. Подробности — `decisions/security/inbox-single-writer.md`.
+
+---
+
+# Security review — 2026-10-15 — quality-tooling
+
+**Вердикт:** ✅ риск снижен: токен CI по умолчанию только на чтение, Dependabot следит за зависимостями; новые зависимости — только для разработки, в архив не попадают. Подробности — `decisions/security/quality-tooling.md`.
