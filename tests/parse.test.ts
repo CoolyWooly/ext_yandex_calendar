@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { type ParseContext, parseCalendarObject, resolveMyStatus } from '../src/calendar/parse';
 import week from './fixtures/report-week.xml?raw';
 import weekAccepted from './fixtures/report-week-accepted.xml?raw';
@@ -115,6 +115,30 @@ SUMMARY:Еженедельная`,
       '2026-10-01T05:00:00.000Z',
       '2026-10-02T05:00:00.000Z',
     ]);
+  });
+
+  it('expands a daily series that started decades ago', () => {
+    const ics = vcalendar(`UID:old-daily
+DTSTART:19900101T050000Z
+DTEND:19900101T053000Z
+RRULE:FREQ=DAILY
+SUMMARY:Старая ежедневная`);
+    expect(parseCalendarObject(ics, context()).map((meeting) => new Date(meeting.start).toISOString())).toEqual(
+      [1, 2, 3, 4, 5, 6, 7].map((day) => `2026-10-0${day}T05:00:00.000Z`),
+    );
+  });
+
+  it('stops at the occurrence limit and says so instead of dropping the series silently', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // Каждую минуту с июля — больше 100 000 повторений до начала недели.
+    const ics = vcalendar(`UID:every-minute
+DTSTART:20260701T000000Z
+DTEND:20260701T000100Z
+RRULE:FREQ=MINUTELY
+SUMMARY:Каждую минуту`);
+    expect(parseCalendarObject(ics, context())).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('every-minute'));
+    warn.mockRestore();
   });
 
   it('reads all-day events as local days', () => {

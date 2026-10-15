@@ -14,8 +14,13 @@ export interface ParseContext {
   range: TimeRange;
 }
 
-// Защита от бесконечных серий: ежедневная встреча за 20 лет — около 7300 повторений.
-const MAX_OCCURRENCES = 10_000;
+/**
+ * Сколько повторений серии перебирать, считая с её начала: ical.js не умеет начать с середины.
+ * Это защита от лишней работы, а не ограничение для пользователя — ical.js перебирает около
+ * 150 повторений за миллисекунду, так что это не дольше полсекунды и ежедневная серия длиной
+ * в 270 лет. Упираются в предел только серии чаще раза в день.
+ */
+const MAX_OCCURRENCES = 100_000;
 
 const PARTSTAT_STATUS: Record<string, MyStatus> = {
   ACCEPTED: 'accepted',
@@ -48,8 +53,12 @@ export function parseCalendarObject(ics: string, ctx: ParseContext): Meeting[] {
       exceptions.filter((exception) => exception.uid === event.uid).map((exception) => exception.recurrenceId.toUnixTime()),
     );
     const iterator = event.iterator();
-    for (let count = 0, next = iterator.next(); next && count < MAX_OCCURRENCES; next = iterator.next(), count++) {
-      if (toMillis(next) >= ctx.range.end) break;
+    for (let count = 0, next = iterator.next(); next && toMillis(next) < ctx.range.end; next = iterator.next(), count++) {
+      if (count === MAX_OCCURRENCES) {
+        // Не молча: иначе встречи серии просто пропадут из списка.
+        console.warn(`Серия ${event.uid}: больше ${MAX_OCCURRENCES} повторений, дальше не показываем`);
+        break;
+      }
       if (overridden.has(next.toUnixTime())) continue;
       const details = event.getOccurrenceDetails(next);
       pushIfInRange(meetings, event, details.startDate, details.endDate, details.recurrenceId, ctx);
