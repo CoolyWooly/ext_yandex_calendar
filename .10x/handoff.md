@@ -1,18 +1,19 @@
 # Handoff
 
-**От:** QA + Security · **Кому:** пользователю (выпуск) и Senior Engineer (следующее замечание)
+**От:** Architect + Staff Engineer · **Кому:** SDE
 **Дата:** 2026-10-15
+**Фича:** `inbox-single-writer` — [ADR-002](adrs/002-inbox-single-writer.md)
 
-## Готово
-`auth-retry-pause` ([ADR-001](adrs/001-auth-retry-pause.md)): автоматические синхронизации (открытие окна,
-настройки, запуск браузера, расписание) после неверного пароля ждут 30 минут; «Обновить» и
-ввод/перепроверка пароля идут сразу. Тесты 145/145, сборка ок. Записано в CHANGELOG `[Unreleased]`.
-Не выпущено: версия не поднята, тег не поставлен, в Chrome вручную не проверялось.
+## Задача
+Убрать гонку двух писателей `local:inbox`: писать может только фон, окно забирает изменения сообщением.
 
-## Выпуск (когда решит пользователь)
-`npm version X.Y.Z --no-git-tag-version`, переименовать `[Unreleased]` в CHANGELOG, тег `vX.Y.Z`, пуш —
-CI создаст релиз; затем загрузка в Chrome Web Store (`decisions/devops/meetings-extension.md`).
+## План
+1. `changes.ts`: замок `withInbox`; `recordChanges` пишет inbox под ним; `takeInbox()` — забрать и очистить под замком.
+2. `messages.ts`: `{ type: 'take-inbox' }`; `background.ts`: ответ забранными записями.
+3. `Popup.tsx`: забирать сообщением при открытии и когда `watch` видит непустой inbox; не писать inbox.
+4. `store/render/fake-browser.ts`: отвечать на `take-inbox` демо-изменениями.
+5. Тесты: `takeInbox` отдаёт и очищает; гонка `recordChanges` и `takeInbox` не теряет и не повторяет записи; фоновый тест «счётчик гаснет» через сообщение.
+6. CHANGELOG `[Unreleased]`.
 
-## Следующее
-Замечание 2 — гонка вокруг inbox (`decisions/senior-engineer/meetings-extension.md`): `recordChanges`
-читает и пишет `inboxItem`, popup одновременно очищает его.
+## Ранее
+`auth-retry-pause` (ADR-001) — готово, не выпущено.
