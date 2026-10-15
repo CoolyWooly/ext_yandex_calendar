@@ -1,6 +1,6 @@
 # Security — индекс
 
-## Модель угроз [DISCOVERED]
+## Модель угроз
 - **Секрет:** пароль приложения Яндекса в `chrome.storage.local` без шифрования. Принятый риск: даёт доступ только к календарю, отзывается в один клик (SECURITY.md, PRIVACY.md).
 - **Сеть:** только `https://caldav.yandex.ru`, Basic auth в заголовке, `credentials: 'omit'` (без cookie Яндекса и без системного окна логина), `cache: 'no-store'`, таймаут 20 с.
 - **Открытие ссылок из календаря:** только из allowlist — https-ссылки известных сервисов созвонов (`src/calendar/links.ts`), ссылка на событие только с `calendar.yandex.*`, иначе `https://calendar.yandex.ru/`. Произвольные URL из описания встречи не открываются.

@@ -1,4 +1,4 @@
-# DevOps — meetings-extension [DISCOVERED]
+# DevOps — meetings-extension
 
 ## CI (`.github/workflows/ci.yml`)
 - Триггеры: пуш в `master`, теги `v*`, pull request.

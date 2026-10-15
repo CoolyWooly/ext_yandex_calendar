@@ -1,6 +1,6 @@
 # Staff Engineer — индекс
 
-## Соглашения [DISCOVERED]
+## Соглашения
 - TypeScript `strict` + `noUncheckedIndexedAccess`; явный `!` там, где индекс гарантирован.
 - Автоимпорты WXT выключены (`imports: false`) — всё импортируется явно, `browser` из `wxt/browser`.
 - Комментарии и тексты интерфейса — на русском, JSDoc объясняет «почему». Названия тестов — на английском.

@@ -1,6 +1,6 @@
 # Architect — индекс
 
-## Принципы [DISCOVERED]
+## Принципы
 - Чистая логика отдельно от браузерных API: `src/calendar/*` — чистые функции, время (`now`) передаётся параметром.
 - Состояние — в `chrome.storage`, а не в памяти service worker: он может быть остановлен в любой момент.
 - Один оркестратор — `src/entrypoints/background.ts`. Popup и options читают storage напрямую и шлют в фон только `{ type: 'sync' }`.
@@ -14,3 +14,4 @@
 
 ## Фичи
 - [meetings-extension](meetings-extension.md)
+- [auth-retry-pause](auth-retry-pause.md) — пауза после неверного пароля, ADR-001

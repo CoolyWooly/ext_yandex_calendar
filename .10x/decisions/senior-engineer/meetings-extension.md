@@ -1,4 +1,4 @@
-# Senior Engineer — meetings-extension: замечания [DISCOVERED]
+# Senior Engineer — meetings-extension: замечания
 
 Ни одно не блокирует. Отсортированы по важности.
 

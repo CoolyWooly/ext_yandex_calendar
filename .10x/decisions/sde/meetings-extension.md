@@ -1,4 +1,4 @@
-# SDE — meetings-extension: что построено [DISCOVERED]
+# SDE — meetings-extension: что построено
 
 Версия 1.1.0, ≈ 3 200 строк TS/TSX в `src/` (без CSS), ≈ 1 600 строк тестов, 6 коммитов с 2026-10-01.
 

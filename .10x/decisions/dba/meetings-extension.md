@@ -1,4 +1,4 @@
-# DBA — meetings-extension: схема хранилища [DISCOVERED]
+# DBA — meetings-extension: схема хранилища
 
 Описано в `src/storage/store.ts`, `src/sync/reminders.ts`, `src/ui/notifications.ts`.
 
