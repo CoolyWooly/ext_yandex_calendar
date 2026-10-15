@@ -7,6 +7,10 @@ on:
     tags: ['v*']
   pull_request:
 
+# По умолчанию только чтение; писать (создавать релиз) может лишь job package.
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
