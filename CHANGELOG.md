@@ -2,6 +2,11 @@
 
 Формат — [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии — [SemVer](https://semver.org/lang/ru/).
 
+## [Unreleased]
+
+### Исправлено
+- Когда Яндекс не принимает пароль приложения, расширение больше не пробует войти при каждом открытии списка встреч и смене настроек: только раз в 30 минут, по кнопке «Обновить» и после ввода пароля в настройках.
+
 ## [1.1.0] — 2026-10-01
 
 ### Добавлено
@@ -24,5 +29,6 @@
 - Приглашения без ответа, в том числе через рассылку, и сводка по ним раз в день.
 - Уведомление, если Яндекс перестал принимать пароль приложения; паузы между попытками при ошибках сети.
 
+[Unreleased]: https://github.com/CoolyWooly/ext_yandex_calendar/compare/v1.1.0...HEAD
 [1.1.0]: https://github.com/CoolyWooly/ext_yandex_calendar/compare/f565df2...v1.1.0
 [1.0.0]: https://github.com/CoolyWooly/ext_yandex_calendar/commit/f565df2

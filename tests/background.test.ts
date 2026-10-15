@@ -2,7 +2,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { parseCalendarList } from '../src/caldav/client';
 import background from '../src/entrypoints/background';
-import { accountItem, inboxItem, updatePreferences } from '../src/storage/store';
+import { accountItem, inboxItem, snapshotItem, updatePreferences } from '../src/storage/store';
 import propfindCalendars from './fixtures/propfind-calendars.xml?raw';
 import week from './fixtures/report-week.xml?raw';
 import { icsOf, local, vcalendar } from './helpers';
@@ -19,6 +19,8 @@ const MINUTE = 60_000;
 let ctag = 1;
 let objects: string[] = [];
 let server: 'ok' | 'wrong-password' | 'offline' = 'ok';
+/** Пока задан, сервер не отвечает — так держим синхронизацию незавершённой. */
+let gate: Promise<void> | null = null;
 
 function escapeXml(text: string): string {
   return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -35,6 +37,7 @@ function reportXml(): string {
 }
 
 async function fakeYandex(_url: string, init: RequestInit): Promise<Response> {
+  if (gate) await gate;
   if (server === 'offline') throw new TypeError('Failed to fetch');
   if (server === 'wrong-password') return new Response('', { status: 401 });
   if (init.method === 'PROPFIND') {
@@ -43,8 +46,13 @@ async function fakeYandex(_url: string, init: RequestInit): Promise<Response> {
   return new Response(reportXml(), { status: 207 });
 }
 
-/** Синхронизация так же, как её запускает окно расширения. */
+/** Синхронизация так же, как её запускает открытое окно расширения. */
 const syncFromPopup = () => fakeBrowser.runtime.sendMessage({ type: 'sync' });
+/** Кнопка «Обновить» в окне расширения. */
+const refreshFromPopup = () => fakeBrowser.runtime.sendMessage({ type: 'sync', manual: true });
+const fetchCalls = () => vi.mocked(fetch).mock.calls.length;
+/** Даём фоновому скрипту отработать изменения в хранилище. */
+const settle = () => new Promise((resolve) => setTimeout(resolve, 50));
 const badgeText = () => fakeBrowser.action.getBadgeText({});
 const notifications = () => fakeBrowser.notifications.getAllCreateOptions();
 const fireAlarm = (name: string) =>
@@ -62,6 +70,7 @@ describe('background', () => {
     ctag = 1;
     objects = [icsOf(week)];
     server = 'ok';
+    gate = null;
 
     const calendars = parseCalendarList(propfindCalendars.replace('1790751946000', '1'));
     await accountItem.setValue({ login: 'user@example.com', appPassword: 'secret', calendars, verifiedAt: 0 });
@@ -167,9 +176,11 @@ ATTENDEE;PARTSTAT=NEEDS-ACTION:mailto:user@example.com`),
     expect(notifications()['auth-error']).toMatchObject({ title: '🔑 Яндекс не принимает пароль приложения' });
     expect(await badgeText()).toBe('!');
 
-    // Повторная неудача не дублирует уведомление.
+    // Повторная неудача по кнопке «Обновить» не дублирует уведомление.
     const created = vi.spyOn(fakeBrowser.notifications, 'create');
-    await syncFromPopup();
+    const beforeRefresh = fetchCalls();
+    await refreshFromPopup();
+    expect(fetchCalls()).toBeGreaterThan(beforeRefresh);
     expect(created).not.toHaveBeenCalled();
 
     // По расписанию в Яндекс не ходим полчаса.
@@ -185,6 +196,97 @@ ATTENDEE;PARTSTAT=NEEDS-ACTION:mailto:user@example.com`),
     await accountItem.setValue({ ...account!, appPassword: 'new-secret' });
     await vi.waitFor(() => expect(notifications()).toEqual({}));
     await vi.waitFor(async () => expect(await badgeText()).not.toBe('!'));
+  });
+
+  it('does not retry a rejected password when the popup opens or settings change', async () => {
+    await syncFromPopup();
+    server = 'wrong-password';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await syncFromPopup();
+    expect(await badgeText()).toBe('!');
+    const calls = fetchCalls();
+
+    // Открыли окно, поменяли настройку — в Яндекс не идём, «!» остаётся.
+    vi.setSystemTime(local(2026, 10, 1, 7, 10));
+    await syncFromPopup();
+    await updatePreferences({ hideDeclined: false });
+    await settle();
+    expect(fetchCalls()).toBe(calls);
+    expect(await badgeText()).toBe('!');
+
+    // «Обновить» — пробуем сразу.
+    await refreshFromPopup();
+    expect(fetchCalls()).toBeGreaterThan(calls);
+
+    // Через 30 минут после последней неудачи открытие окна снова проверяет пароль.
+    const afterRefresh = fetchCalls();
+    vi.setSystemTime(local(2026, 10, 1, 7, 39));
+    await syncFromPopup();
+    expect(fetchCalls()).toBe(afterRefresh);
+    vi.setSystemTime(local(2026, 10, 1, 7, 41));
+    await syncFromPopup();
+    expect(fetchCalls()).toBeGreaterThan(afterRefresh);
+  });
+
+  it('rechecks a rejected password at once when it is verified again in settings', async () => {
+    await syncFromPopup();
+    server = 'wrong-password';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await syncFromPopup();
+    expect(await badgeText()).toBe('!');
+
+    // «Проверить снова» сохраняет тот же пароль с новым временем проверки.
+    server = 'ok';
+    const account = await accountItem.getValue();
+    await accountItem.setValue({ ...account!, verifiedAt: Date.now() });
+    await vi.waitFor(async () => expect(await badgeText()).not.toBe('!'));
+  });
+
+  it('forgets meetings and reminders when disconnected while the password is rejected', async () => {
+    await syncFromPopup();
+    server = 'wrong-password';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await syncFromPopup();
+
+    await accountItem.setValue(null);
+    await vi.waitFor(async () => expect((await snapshotItem.getValue()).meetings).toEqual([]));
+    await vi.waitFor(async () => {
+      const alarms = await fakeBrowser.alarms.getAll();
+      expect(alarms.filter((alarm) => alarm.name.startsWith('remind|'))).toEqual([]);
+    });
+  });
+
+  it('runs a Refresh pressed during a sync even if the popup was opened first', async () => {
+    await syncFromPopup();
+    server = 'wrong-password';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await syncFromPopup();
+    const calls = fetchCalls();
+
+    // Пока идёт проверка, окно открыли и нажали «Обновить»: следом — ещё одна, по кнопке.
+    let release!: () => void;
+    gate = new Promise((resolve) => (release = resolve));
+    const first = refreshFromPopup();
+    await vi.waitFor(() => expect(fetchCalls()).toBe(calls + 1));
+    const queued = [syncFromPopup(), refreshFromPopup()];
+    gate = null;
+    release();
+    await Promise.all([first, ...queued]);
+    expect(fetchCalls()).toBe(calls + 2);
+  });
+
+  it('retries at once when the popup opens after a network failure', async () => {
+    await syncFromPopup();
+    server = 'offline';
+    vi.setSystemTime(local(2026, 10, 1, 7, 2));
+    await syncFromPopup();
+    const calls = fetchCalls();
+
+    server = 'ok';
+    vi.setSystemTime(local(2026, 10, 1, 7, 3));
+    await syncFromPopup();
+    expect(fetchCalls()).toBeGreaterThan(calls);
+    expect((await snapshotItem.getValue()).error).toBeNull();
   });
 
   it('waits longer between scheduled attempts while the network is down', async () => {

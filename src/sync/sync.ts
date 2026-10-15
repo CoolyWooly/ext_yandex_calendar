@@ -146,9 +146,18 @@ async function rememberCalendars(account: Account, calendars: CalendarInfo[]): P
 export function nextScheduledAttempt(snapshot: Snapshot, pollMinutes: number): number {
   const { error } = snapshot;
   if (!error) return 0;
-  if (error.kind === 'auth') return error.at + MAX_RETRY_DELAY_MS;
+  if (error.kind === 'auth') return nextAutomaticAttempt(snapshot);
   const delay = pollMinutes * 60_000 * 2 ** Math.max(0, (error.failures ?? 1) - 1);
   return error.at + Math.min(delay, MAX_RETRY_DELAY_MS);
+}
+
+/**
+ * Когда снова идти на сервер не по расписанию, но и не по просьбе пользователя (открыли окно,
+ * поменяли настройки): ждём только после неверного пароля. После ошибки сети — сразу.
+ */
+export function nextAutomaticAttempt(snapshot: Snapshot): number {
+  const { error } = snapshot;
+  return error?.kind === 'auth' ? error.at + MAX_RETRY_DELAY_MS : 0;
 }
 
 function toSyncError(error: unknown, now: number, failures: number): SyncError {

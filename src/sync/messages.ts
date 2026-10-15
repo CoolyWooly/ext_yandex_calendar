@@ -1,2 +1,6 @@
 /** Сообщения из окна расширения в фоновый скрипт. */
-export type BackgroundMessage = { type: 'sync' };
+export type BackgroundMessage = {
+  type: 'sync';
+  /** Нажали «Обновить»: идём в Яндекс, даже если он недавно не принял пароль. Иначе — окно просто открыли. */
+  manual?: boolean;
+};

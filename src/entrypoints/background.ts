@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser';
 import { defineBackground } from 'wxt/utils/define-background';
 import {
+  type Account,
   accountItem,
   getPreferences,
   inboxItem,
@@ -11,7 +12,7 @@ import {
 import { recordChanges, takeDueDigest, unseenCount } from '../sync/changes';
 import type { BackgroundMessage } from '../sync/messages';
 import { isReminderAlarm, scheduleReminderAlarms, takeDueReminders } from '../sync/reminders';
-import { nextScheduledAttempt, syncNow } from '../sync/sync';
+import { nextAutomaticAttempt, nextScheduledAttempt, syncNow } from '../sync/sync';
 import { applyBadge, computeBadge } from '../ui/badge';
 import {
   AUTH_ERROR_NOTIFICATION,
@@ -37,19 +38,19 @@ export default defineBackground(() => {
   browser.runtime.onInstalled.addListener(({ reason }) => {
     // Сразу после установки ведём на подключение календаря.
     if (reason === 'install') void browser.runtime.openOptionsPage();
-    void schedule();
+    void schedule('auto');
   });
-  browser.runtime.onStartup.addListener(() => void schedule());
+  browser.runtime.onStartup.addListener(() => void schedule('auto'));
 
   browser.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === SYNC_ALARM) void runSync({ scheduled: true });
+    if (alarm.name === SYNC_ALARM) void runSync('schedule');
     if (alarm.name === TICK_ALARM) void refreshBadge().then(checkReminders);
     if (isReminderAlarm(alarm.name)) void checkReminders();
   });
 
   browser.runtime.onMessage.addListener((message: BackgroundMessage, _sender, sendResponse) => {
     if (message?.type !== 'sync') return;
-    void runSync().then(() => sendResponse(true));
+    void runSync(message.manual ? 'user' : 'auto').then(() => sendResponse(true));
     return true;
   });
 
@@ -60,37 +61,44 @@ export default defineBackground(() => {
     if (byUser) void forgetNotification(id);
   });
 
-  // Подключили/отключили аккаунт или поменяли настройки — пересинхронизируемся сразу.
-  accountItem.watch(() => void schedule());
-  watchPreferences(() => void schedule());
+  // Подключили/отключили аккаунт или поменяли настройки — пересинхронизируемся. После неверного
+  // пароля правка настроек ждёт паузу, новый пароль проверяется сразу.
+  accountItem.watch((account, previous) => void schedule(credentialsChanged(account, previous) ? 'user' : 'auto'));
+  watchPreferences(() => void schedule('auto'));
   // Открыли список встреч — изменения просмотрены, счётчик на значке гаснет.
   inboxItem.watch(() => void refreshBadge());
 });
 
-async function schedule(): Promise<void> {
+async function schedule(trigger: SyncTrigger): Promise<void> {
   const preferences = await getPreferences();
   await browser.alarms.create(SYNC_ALARM, { periodInMinutes: preferences.pollMinutes });
   await browser.alarms.create(TICK_ALARM, { periodInMinutes: 1 });
-  await runSync();
+  await runSync(trigger);
 }
 
-interface SyncRequest {
-  /** По расписанию — после ошибок выдерживаем паузу. Открытие окна и смена настроек — сразу. */
-  scheduled: boolean;
-}
+/**
+ * Повод синхронизации, по возрастанию настойчивости:
+ * - `schedule` — будильник: после любых ошибок выдерживаем паузу;
+ * - `auto` — открыли окно, поменяли настройки, запустили браузер: ждём только после неверного
+ *   пароля, чтобы Яндекс не счёл частые неудачные входы подбором;
+ * - `user` — нажали «Обновить», ввели или перепроверили пароль, отключили аккаунт: сразу.
+ */
+type SyncTrigger = 'schedule' | 'auto' | 'user';
+
+const URGENCY: Record<SyncTrigger, number> = { schedule: 0, auto: 1, user: 2 };
 
 let running: Promise<void> | null = null;
-let queued: SyncRequest | null = null;
+let queued: SyncTrigger | null = null;
 
-/** Одна синхронизация за раз; запрос во время работы выполняется сразу после неё. */
-function runSync(request: SyncRequest = { scheduled: false }): Promise<void> {
+/** Одна синхронизация за раз; запросы во время работы сливаются в один, самый настойчивый. */
+function runSync(trigger: SyncTrigger): Promise<void> {
   if (running) {
-    queued = { scheduled: (queued?.scheduled ?? true) && request.scheduled };
+    if (queued === null || URGENCY[trigger] > URGENCY[queued]) queued = trigger;
     return running;
   }
   running = (async () => {
     try {
-      let next: SyncRequest | null = request;
+      let next: SyncTrigger | null = trigger;
       while (next) {
         queued = null;
         await syncAndNotify(next);
@@ -103,10 +111,23 @@ function runSync(request: SyncRequest = { scheduled: false }): Promise<void> {
   return running;
 }
 
-async function syncAndNotify({ scheduled }: SyncRequest): Promise<void> {
-  if (scheduled) {
+/**
+ * Аккаунт изменил пользователь, а не синхронизация, обновившая список календарей: новый пароль
+ * или почта, перепроверка подключения (меняется `verifiedAt`), отключение.
+ */
+function credentialsChanged(account: Account | null, previous: Account | null): boolean {
+  return (
+    account?.login !== previous?.login ||
+    account?.appPassword !== previous?.appPassword ||
+    account?.verifiedAt !== previous?.verifiedAt
+  );
+}
+
+async function syncAndNotify(trigger: SyncTrigger): Promise<void> {
+  if (trigger !== 'user') {
     const [stored, { pollMinutes }] = await Promise.all([snapshotItem.getValue(), getPreferences()]);
-    if (Date.now() < nextScheduledAttempt(stored, pollMinutes)) {
+    const notBefore = trigger === 'schedule' ? nextScheduledAttempt(stored, pollMinutes) : nextAutomaticAttempt(stored);
+    if (Date.now() < notBefore) {
       await refreshBadge();
       return;
     }

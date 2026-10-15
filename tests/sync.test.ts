@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { CalDavError, parseCalendarList } from '../src/caldav/client';
 import { accountItem, EMPTY_SNAPSHOT, type Snapshot, snapshotItem, updatePreferences } from '../src/storage/store';
-import { nextScheduledAttempt, syncNow } from '../src/sync/sync';
+import { nextAutomaticAttempt, nextScheduledAttempt, syncNow } from '../src/sync/sync';
 import propfindCalendars from './fixtures/propfind-calendars.xml?raw';
 import week from './fixtures/report-week.xml?raw';
 import { icsOf, local } from './helpers';
@@ -127,12 +127,13 @@ describe('syncNow', () => {
   });
 });
 
+const MINUTE = 60_000;
+const failed = (kind: 'auth' | 'network', failures: number): Snapshot => ({
+  ...EMPTY_SNAPSHOT,
+  error: { kind, message: '', at: NOW, failures },
+});
+
 describe('nextScheduledAttempt', () => {
-  const MINUTE = 60_000;
-  const failed = (kind: 'auth' | 'network', failures: number): Snapshot => ({
-    ...EMPTY_SNAPSHOT,
-    error: { kind, message: '', at: NOW, failures },
-  });
 
   it('does not wait when the last sync succeeded', () => {
     expect(nextScheduledAttempt(EMPTY_SNAPSHOT, 2)).toBe(0);
@@ -146,5 +147,16 @@ describe('nextScheduledAttempt', () => {
 
   it('retries a rejected password only every 30 minutes', () => {
     expect(nextScheduledAttempt(failed('auth', 1), 1)).toBe(NOW + 30 * MINUTE);
+  });
+});
+
+describe('nextAutomaticAttempt', () => {
+  it('does not wait after a success or a network failure', () => {
+    expect(nextAutomaticAttempt(EMPTY_SNAPSHOT)).toBe(0);
+    expect(nextAutomaticAttempt(failed('network', 3))).toBe(0);
+  });
+
+  it('waits 30 minutes after a rejected password', () => {
+    expect(nextAutomaticAttempt(failed('auth', 1))).toBe(NOW + 30 * MINUTE);
   });
 });

@@ -53,7 +53,7 @@ export function Popup() {
         setAccount(storedAccount);
         setPrefs(storedPrefs);
         setSnapshot(storedSnapshot);
-        if (storedAccount) void sync();
+        if (storedAccount) void sync({ manual: false });
       },
     );
     const takeInbox = (entries: InboxEntry[]) => {
@@ -72,10 +72,11 @@ export function Popup() {
     };
   }, []);
 
-  async function sync() {
+  /** `manual` — нажали «Обновить»: проверяем даже пароль, который Яндекс недавно не принял. */
+  async function sync({ manual }: { manual: boolean }) {
     setSyncing(true);
     try {
-      await browser.runtime.sendMessage({ type: 'sync' } satisfies BackgroundMessage);
+      await browser.runtime.sendMessage({ type: 'sync', manual } satisfies BackgroundMessage);
     } finally {
       setSyncing(false);
       setNow(Date.now());
@@ -110,7 +111,7 @@ export function Popup() {
             title="Обновить"
             aria-label="Обновить"
             disabled={syncing}
-            onClick={() => void sync()}
+            onClick={() => void sync({ manual: true })}
           >
             <RefreshIcon />
           </button>
