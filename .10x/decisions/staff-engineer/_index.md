@@ -15,4 +15,4 @@
 - Нет версии схемы хранилища: совместимость держится на `withDefaults` и проверке `snapshot.login`.
 
 ## Фичи
-- Отдельных файлов пока нет — всё в индексе.
+- [quality-tooling](quality-tooling.md) — Biome, тесты UI, Node 22/24, Dependabot (ADR-003)
