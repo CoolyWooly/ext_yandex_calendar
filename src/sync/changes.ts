@@ -44,10 +44,36 @@ export async function recordChanges(previous: Snapshot, current: Snapshot, now: 
   await historyItem.setValue({ ...history, knownUids, baselineAt: history.baselineAt ?? now });
 
   if (changes.length > 0) {
-    const inbox = await inboxItem.getValue();
-    await inboxItem.setValue(pruneInbox([...inbox, ...changes.map((change) => ({ ...change, at: now }))], now));
+    await withInbox(async () => {
+      const inbox = await inboxItem.getValue();
+      await inboxItem.setValue(pruneInbox([...inbox, ...changes.map((change) => ({ ...change, at: now }))], now));
+    });
   }
   return changes;
+}
+
+/**
+ * Забирает непросмотренные изменения для окна встреч и очищает список. Окно само inbox не пишет,
+ * а просит фон: иначе очистка могла бы совпасть с дописыванием новых изменений.
+ */
+export function takeInbox(): Promise<InboxEntry[]> {
+  return withInbox(async () => {
+    const inbox = await inboxItem.getValue();
+    if (inbox.length > 0) await inboxItem.setValue([]);
+    return inbox;
+  });
+}
+
+let inboxQueue: Promise<unknown> = Promise.resolve();
+
+/**
+ * Чтение и запись inbox строго по очереди. Очередь живёт в памяти фонового скрипта, поэтому
+ * `recordChanges` и `takeInbox` вызываются только из него.
+ */
+function withInbox<T>(task: () => Promise<T>): Promise<T> {
+  const result = inboxQueue.then(task, task);
+  inboxQueue = result.catch(() => {});
+  return result;
 }
 
 /** Сколько встреч с непросмотренными изменениями ещё не прошли. */

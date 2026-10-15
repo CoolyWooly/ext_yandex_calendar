@@ -9,7 +9,7 @@ import {
   snapshotItem,
   watchPreferences,
 } from '../storage/store';
-import { recordChanges, takeDueDigest, unseenCount } from '../sync/changes';
+import { recordChanges, takeDueDigest, takeInbox, unseenCount } from '../sync/changes';
 import type { BackgroundMessage } from '../sync/messages';
 import { isReminderAlarm, scheduleReminderAlarms, takeDueReminders } from '../sync/reminders';
 import { nextAutomaticAttempt, nextScheduledAttempt, syncNow } from '../sync/sync';
@@ -49,9 +49,14 @@ export default defineBackground(() => {
   });
 
   browser.runtime.onMessage.addListener((message: BackgroundMessage, _sender, sendResponse) => {
-    if (message?.type !== 'sync') return;
-    void runSync(message.manual ? 'user' : 'auto').then(() => sendResponse(true));
-    return true;
+    if (message?.type === 'sync') {
+      void runSync(message.manual ? 'user' : 'auto').then(() => sendResponse(true));
+      return true;
+    }
+    if (message?.type === 'take-inbox') {
+      void takeInbox().then(sendResponse);
+      return true;
+    }
   });
 
   browser.notifications.onClicked.addListener((id) => void handleNotificationClick(id));

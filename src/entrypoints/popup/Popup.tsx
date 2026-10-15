@@ -56,13 +56,15 @@ export function Popup() {
         if (storedAccount) void sync({ manual: false });
       },
     );
-    const takeInbox = (entries: InboxEntry[]) => {
-      if (entries.length === 0) return;
-      setSeen((earlier) => [...earlier, ...entries]);
-      void inboxItem.setValue([]);
+    // Непросмотренные изменения забирает фон — inbox пишет только он. Окно лишь следит, не появилось ли новое.
+    const takeInbox = async () => {
+      const entries: InboxEntry[] = await browser.runtime.sendMessage({ type: 'take-inbox' } satisfies BackgroundMessage);
+      if (entries.length > 0) setSeen((earlier) => [...earlier, ...entries]);
     };
-    void inboxItem.getValue().then(takeInbox);
-    const unwatchInbox = inboxItem.watch(takeInbox);
+    void takeInbox();
+    const unwatchInbox = inboxItem.watch((entries) => {
+      if (entries.length > 0) void takeInbox();
+    });
     const unwatchSnapshot = snapshotItem.watch(setSnapshot);
     const timer = setInterval(() => setNow(Date.now()), 30_000);
     return () => {

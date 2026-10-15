@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import type { Meeting } from '../src/calendar/types';
 import { EMPTY_SNAPSHOT, historyItem, inboxItem, type Snapshot } from '../src/storage/store';
-import { recordChanges, takeDueDigest, unseenCount } from '../src/sync/changes';
+import { recordChanges, takeDueDigest, takeInbox, unseenCount } from '../src/sync/changes';
 import { local, meeting } from './helpers';
 
 const NOW = local(2026, 10, 1, 7, 0);
@@ -55,6 +55,47 @@ describe('recordChanges', () => {
     const failed = snapshot([], NOW, { error: { kind: 'network', message: '', at: NOW, failures: 1 } });
     expect(await recordChanges(EMPTY_SNAPSHOT, failed, NOW)).toEqual([]);
     expect(await historyItem.getValue()).toMatchObject({ baselineAt: null });
+  });
+});
+
+describe('takeInbox', () => {
+  beforeEach(() => fakeBrowser.reset());
+
+  const first = snapshot([m('a', 2)], NOW);
+  const later = NOW + 2 * 60_000;
+  const second = snapshot([m('a', 2), m('b', 3, { modifiedAt: later })], later);
+
+  it('hands over unseen changes once and empties the list', async () => {
+    await recordChanges(EMPTY_SNAPSHOT, first, NOW);
+    await recordChanges(first, second, later);
+
+    expect((await takeInbox()).map((entry) => entry.uid)).toEqual(['b']);
+    expect(await inboxItem.getValue()).toEqual([]);
+    expect(await takeInbox()).toEqual([]);
+  });
+
+  it('neither loses nor repeats a change recorded while the popup takes the list', async () => {
+    await recordChanges(EMPTY_SNAPSHOT, first, NOW);
+    const earlier = { kind: 'new' as const, uid: 'x', instances: [{ meeting: m('x', 4), previous: null }], at: NOW };
+    await inboxItem.setValue([earlier]);
+
+    // Синхронизация прочитала inbox и замерла до записи; в этот момент окно забирает список.
+    let resume!: () => void;
+    const paused = new Promise<void>((resolve) => (resume = resolve));
+    const read = inboxItem.getValue.bind(inboxItem);
+    const getValue = vi.spyOn(inboxItem, 'getValue').mockImplementationOnce(async () => {
+      const value = await read();
+      await paused;
+      return value;
+    });
+    const recording = recordChanges(first, second, later);
+    await vi.waitFor(() => expect(getValue).toHaveBeenCalled());
+    const taking = takeInbox();
+    resume();
+    const [, taken] = await Promise.all([recording, taking]);
+
+    const everything = [...taken, ...(await inboxItem.getValue())].map((entry) => entry.uid);
+    expect(everything.sort()).toEqual(['b', 'x']);
   });
 });
 

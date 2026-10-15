@@ -2,7 +2,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { parseCalendarList } from '../src/caldav/client';
 import background from '../src/entrypoints/background';
-import { accountItem, inboxItem, snapshotItem, updatePreferences } from '../src/storage/store';
+import { accountItem, type InboxEntry, inboxItem, snapshotItem, updatePreferences } from '../src/storage/store';
 import propfindCalendars from './fixtures/propfind-calendars.xml?raw';
 import week from './fixtures/report-week.xml?raw';
 import { icsOf, local, vcalendar } from './helpers';
@@ -121,8 +121,10 @@ ATTENDEE;PARTSTAT=NEEDS-ACTION:mailto:user@example.com`),
     ]);
     expect(await badgeText()).toBe('1');
 
-    // Окно расширения забирает непросмотренные изменения — счётчик гаснет.
-    await inboxItem.setValue([]);
+    // Окно расширения забирает непросмотренные изменения у фона — счётчик гаснет.
+    const taken: InboxEntry[] = await fakeBrowser.runtime.sendMessage({ type: 'take-inbox' });
+    expect(taken.map((entry) => entry.uid)).toEqual(['review']);
+    expect(await inboxItem.getValue()).toEqual([]);
     await vi.waitFor(async () => expect(await badgeText()).toBe(''));
   });
 
