@@ -23,6 +23,8 @@
     "store:assets": "node store/capture.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
@@ -31,6 +33,7 @@
     "preact": "^10.29.8"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.15",
     "@preact/preset-vite": "^2.10.6",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3",

@@ -203,6 +203,7 @@ function CalendarsSection(props: {
                 <span class="toggle-text">{calendar.name}</span>
                 <input
                   type="checkbox"
+                  // biome-ignore lint/a11y/useAriaPropsForRole: нативный checkbox сам сообщает состояние через checked, а aria-checked на input запрещён (ARIA in HTML)
                   role="switch"
                   class="switch"
                   checked={selected.includes(calendar.href)}
@@ -280,7 +281,7 @@ function TestNotification() {
 
   return (
     <div class="test-notification">
-      <button class="button" onClick={() => void show()}>
+      <button type="button" class="button" onClick={() => void show()}>
         <BellIcon />
         Показать тестовое уведомление
       </button>
@@ -354,6 +355,7 @@ function Toggle(props: {
         </span>
         <input
           type="checkbox"
+          // biome-ignore lint/a11y/useAriaPropsForRole: нативный checkbox сам сообщает состояние через checked, а aria-checked на input запрещён (ARIA in HTML)
           role="switch"
           class="switch"
           checked={props.checked}

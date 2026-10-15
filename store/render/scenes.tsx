@@ -7,7 +7,7 @@ import iconSmallUrl from '../../design/icon-small.svg';
 import { computeBadge } from '../../src/ui/badge';
 import { LogoMark } from '../../src/ui/icons';
 import { describeChange, describeReminder, type NotificationSpec } from '../../src/ui/notifications';
-import { INBOX, NOW, ONE_ON_ONE, RETRO, SNAPSHOT, STANDUP } from './demo';
+import { INBOX, NOW, RETRO, SNAPSHOT, STANDUP } from './demo';
 import './scenes.css';
 
 declare global {
@@ -25,7 +25,7 @@ const frameListeners = new Set<() => void>();
 window.addEventListener('message', (event: MessageEvent) => {
   if (event.data?.type !== 'ready') return;
   frameHeights[event.data.name] = event.data.height;
-  frameListeners.forEach((listener) => listener());
+  for (const listener of frameListeners) listener();
 });
 
 /** Высоты iframe сцены; сцена готова к снимку, когда все они отрисовались. */
@@ -49,7 +49,7 @@ function markReady() {
 
 function Check() {
   return (
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
       <path d="m5 12.5 4.5 4.5L19 7.5" />
     </svg>
   );
@@ -87,7 +87,7 @@ function BrowserWithPopup(props: { demo: string; unseen: number; scale?: number 
     <div class="browser">
       <Toolbar badge={badge} />
       <FakePage />
-      <iframe
+      <iframe title="Окно встреч"
         name="popup"
         class="popup-frame"
         src={`popup.html?demo=${props.demo}`}
@@ -107,7 +107,7 @@ function Toolbar({ badge }: { badge?: { text: string; color: string } }) {
       </span>
       <span class="nav">‹ ›</span>
       <span class="address">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
           <rect x="5" y="11" width="14" height="10" rx="2" />
           <path d="M8 11V8a4 4 0 0 1 8 0v3" />
         </svg>
@@ -269,7 +269,7 @@ function SettingsScene() {
       />
       <div class="browser wide">
         <Toolbar />
-        <iframe name="options" class="options-frame" src="options.html?demo=onboarding" />
+        <iframe title="Настройки" name="options" class="options-frame" src="options.html?demo=onboarding" />
       </div>
     </Shot>
   );
@@ -303,7 +303,7 @@ function Marquee() {
         </h1>
         <p>Список встреч, напоминания и вход в созвон для Яндекс&nbsp;Календаря</p>
       </div>
-      <iframe
+      <iframe title="Окно встреч"
         name="popup"
         class="popup-frame floating"
         src="popup.html?demo=list"

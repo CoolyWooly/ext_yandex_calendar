@@ -108,7 +108,7 @@ export function Popup() {
           {account && status && <span class="sync-status">{status}</span>}
         </div>
         {account && (
-          <button
+          <button type="button"
             class={`icon-button${syncing ? ' spinning' : ''}`}
             title="Обновить"
             aria-label="Обновить"
@@ -118,7 +118,7 @@ export function Popup() {
             <RefreshIcon />
           </button>
         )}
-        <button class="icon-button" title="Настройки" aria-label="Настройки" onClick={openOptions}>
+        <button type="button" class="icon-button" title="Настройки" aria-label="Настройки" onClick={openOptions}>
           <SettingsIcon />
         </button>
       </header>
@@ -208,7 +208,7 @@ function Content(props: {
         {prefs.selectedCalendars?.length === 0 ? (
           <div class="empty">
             <p>Не выбран ни один календарь</p>
-            <button class="button" onClick={onOpenOptions}>
+            <button type="button" class="button" onClick={onOpenOptions}>
               Выбрать в настройках
             </button>
           </div>
@@ -253,7 +253,7 @@ function ErrorBanner({ snapshot, now, onOpenOptions }: { snapshot: Snapshot; now
         <AlertIcon />
         <span>
           Яндекс не принимает пароль приложения.{' '}
-          <button class="button link" onClick={onOpenOptions}>
+          <button type="button" class="button link" onClick={onOpenOptions}>
             Обновить пароль
           </button>
         </span>
@@ -307,7 +307,7 @@ function Welcome({ onConnect }: { onConnect: () => void }) {
           </li>
         ))}
       </ul>
-      <button class="button primary wide" onClick={onConnect}>
+      <button type="button" class="button primary wide" onClick={onConnect}>
         Подключить календарь
       </button>
       <p class="welcome-note muted">Понадобится только пароль приложения Яндекса</p>

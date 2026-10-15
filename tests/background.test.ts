@@ -13,7 +13,6 @@ import { icsOf, local, vcalendar } from './helpers';
  */
 
 const PRIMARY = '/calendars/user%40example.com/events-36215597/';
-const MINUTE = 60_000;
 
 // Состояние подставного сервера.
 let ctag = 1;

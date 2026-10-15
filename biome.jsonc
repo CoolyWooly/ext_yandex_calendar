@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": { "includes": ["**", "!store/assets", "!public", "!design"] },
+  // Стиль, в котором код уже написан: ширина 120, одинарные кавычки, запятые в конце.
+  "formatter": { "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
+    }
+  },
+  "linter": {
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        // С noUncheckedIndexedAccess `!` ставим там, где элемент точно есть (первый из непустого списка).
+        "noNonNullAssertion": "off",
+        // Срабатывает на селекторах, которые бьют по разным элементам или разным свойствам; каскад сверен
+        // по картинкам магазина, переставлять правила ради эвристики — риск сломать вёрстку.
+        "noDescendingSpecificity": "off"
+      },
+      "complexity": {
+        // !important — осознанные перекрытия (ошибка ввода, отступы в шагах настроек).
+        "noImportantStyles": "off"
+      }
+    }
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+}

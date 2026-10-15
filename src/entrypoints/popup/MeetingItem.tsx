@@ -82,7 +82,7 @@ export function MeetingItem({ meeting, highlight, color, featured = false, now, 
   };
 
   const joinButton = meeting.join && !meeting.cancelled && (
-    <button
+    <button type="button"
       class={`button join${featured || inProgress || soon ? ' primary' : ''}`}
       onClick={(event) => {
         event.stopPropagation();

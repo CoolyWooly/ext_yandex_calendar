@@ -106,13 +106,13 @@ export function ConnectionSection({ account, authErrorAt, onConnected, onDisconn
             </div>
           </div>
           <div class="actions">
-            <button class="button" disabled={checking} onClick={() => void connect(account)}>
+            <button type="button" class="button" disabled={checking} onClick={() => void connect(account)}>
               {checking ? 'Проверяю…' : 'Проверить снова'}
             </button>
-            <button class="button" disabled={checking} onClick={() => setEditing(true)}>
+            <button type="button" class="button" disabled={checking} onClick={() => setEditing(true)}>
               Сменить почту или пароль
             </button>
-            <button class="button link danger" disabled={checking} onClick={() => void disconnect()}>
+            <button type="button" class="button link danger" disabled={checking} onClick={() => void disconnect()}>
               Отключить
             </button>
           </div>
