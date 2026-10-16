@@ -6,6 +6,9 @@
 - Job `package` (после `check`, Node 24, `contents: write`): `zip` → артефакт `chrome-extension` (`include-hidden-files`, т.к. `.output` скрытая).
 - На тег `vX.Y.Z`: проверка совпадения с версией в `package.json`, `gh release create` с архивом и разделом версии из CHANGELOG.md.
 - Dependabot (`.github/dependabot.yml`): npm и GitHub Actions раз в неделю, dev minor/patch — одним PR.
+- Версии actions с 2026-10-16: `checkout@v7`, `setup-node@v7`, `upload-artifact@v7`.
+- Токен `gh` локально без scope `workflow`: PR, меняющий `ci.yml`, сливается через `gh pr merge`, только если ветка
+  актуальна относительно `master` — иначе сначала `@dependabot rebase` (или `gh auth refresh -s workflow`).
 
 ## Выпуск (CONTRIBUTING.md)
 1. `npm version X.Y.Z --no-git-tag-version`, раздел в CHANGELOG.md.

@@ -13,9 +13,12 @@
 - Пересняты картинки магазина с окном встреч и обновлён текст карточки (`store/listing.md`) — при следующей
   отправке в Chrome Web Store загрузить их вместо прежних.
 
+## После выпуска 1.2.0 (2026-10-16)
+Слиты все PR Dependabot; в `master` теперь preact 11 (вид проверен сравнением сцен магазина, в CHANGELOG
+`[Unreleased]`). Следующий выпуск — с ручной проверкой окна в Chrome.
+
 ## Что проверить
 - Окно в настоящем Chrome: `npm run build`, «Загрузить распакованное» `.output/chrome-mv3`.
-- PR Dependabot #1–#5 (мажорные версии Actions, `happy-dom` 21, `preact` 11) — CI зелёный, не смёржены.
 
 ## Выпуск 1.2.0
 Выпущена на GitHub: https://github.com/CoolyWooly/ext_yandex_calendar/releases/tag/v1.2.0 (CI 38715838266
