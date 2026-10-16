@@ -30,7 +30,7 @@
   "dependencies": {
     "fast-xml-parser": "^5.11.2",
     "ical.js": "^2.2.1",
-    "preact": "^10.29.8"
+    "preact": "^11.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
