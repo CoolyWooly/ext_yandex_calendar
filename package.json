@@ -36,7 +36,7 @@
     "@biomejs/biome": "2.5.15",
     "@preact/preset-vite": "^2.10.6",
     "@testing-library/preact": "^3.2.4",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.1",
     "typescript": "^7.0.2",
     "vitest": "^5.0.4",
     "wxt": "^0.21.4"
